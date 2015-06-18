@@ -1,0 +1,8 @@
+Debug/
+Release/
+*.vcxproj
+*.opensdf
+*.sdf
+*.suo
+*.filters
+Memory Stats.txt
