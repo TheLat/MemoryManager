@@ -6,7 +6,7 @@
 #define INITIAL_SIZE 5
 
 #ifndef _MSC_VER
-void fopen_s(FILE **F, const char *filename, const char *options) {
+inline static void fopen_s(FILE **F, const char *filename, const char *options) {
 	*F = fopen(filename, options);
 }
 #endif
