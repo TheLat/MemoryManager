@@ -1,3 +1,4 @@
+#include <cassert>
 #include <cerrno>
 #include <cstdio>
 #include <cstdlib>
@@ -78,7 +79,7 @@ int main(int argc, char **argv)
 	int m = 10;
 	int n = 10;
 	int sx = 1;
-	int sy = 17;
+	int sy = 1;
 	int gx = 8;
 	int gy = 8;
     
@@ -98,6 +99,7 @@ int main(int argc, char **argv)
     } else if (gy>m) {
         gy = n - 2;
     }
+    assert(m>0 && n>0 && sx<=m && sy<=n && gx<=m && gy<=n);
     printf("m=%d, n=%d, gx=%d, gy=%d\n", m, n, gx, gy);
 	Mem = (mm*)&(mm::get());
 	Pointer<Node> *test;
