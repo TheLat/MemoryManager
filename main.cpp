@@ -1,6 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cerrno>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "mm.h"
 
 /************************************************************
@@ -57,7 +58,15 @@ public:
 mm* Mem;
 int UID = 0;
 
-int main()
+static int atoi_s(const char *arg, int def) {
+    int val = atoi(arg);
+    if (val==0 && errno==EINVAL) {
+        return def;
+    }
+    return val;
+}
+
+int main(int argc, char **argv)
 {
 	/*
 	QueryPerformanceFrequency(&frequency);
@@ -72,6 +81,13 @@ int main()
 	int sy = 17;
 	int gx = 46;
 	int gy = 17;
+    
+    if (argc>1) {
+        m = atoi_s(argv[1], m);
+    }
+    if (argc>2) {
+        n = atoi_s(argv[2], n);
+    }
 	Mem = (mm*)&(mm::get());
 	Pointer<Node> *test;
 	test = new Pointer<Node>[n*m];
