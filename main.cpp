@@ -121,12 +121,16 @@ int main(int argc, char **argv)
 			if ((i == 0) || (j == 0) || (i == m - 1) || (j == n - 1)) {
 				(*(test[j + i*n])).passable = false;
 			}
-			if (i > 0 && j > 0) {
-				(*(test[j + i*n])).Left = ((test[(j - 1) + i*n]));
+			if (i > 0) {
 				(*(test[j + i*n])).Up = ((test[j + (i - 1)*n]));
+			}
+			if( j > 0) {
+				(*(test[j + i*n])).Left = ((test[(j - 1) + i*n]));
             }
-			if (i < m - 1 && j < n - 1) {
+			if (i < m - 1) {
 				(*(test[j + i*n])).Right = ((test[(j + 1) + i*n]));
+			}
+			if (j < n - 1) {
 				(*(test[j + i*n])).Down = ((test[j + (i + 1)*n]));
             }
 
