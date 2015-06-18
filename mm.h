@@ -113,7 +113,7 @@ public:
 		Set(-1);
 	}
 	bool IsGood(){
-		if (index >= 0)
+		if (size > 0 && index >= 0)
 			return true;
 		return false;
 	}
@@ -122,6 +122,9 @@ public:
 			return *this;
 		Set(param.GetIndex());
 		return *this;
+	}
+	operator bool(){
+		return (IsGood());
 	}
 	void Allocate();
 	T& operator* ();
