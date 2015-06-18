@@ -75,12 +75,12 @@ int main(int argc, char **argv)
 	double deltat = (t2.QuadPart - t1.QuadPart) * 1000.0 / frequency.QuadPart;
 	*/
 	Pointer<Node> Empty;
-	int m = 40;
-	int n = 79;
+	int m = 10;
+	int n = 10;
 	int sx = 1;
 	int sy = 17;
-	int gx = 46;
-	int gy = 17;
+	int gx = 8;
+	int gy = 8;
     
     if (argc>1) {
         m = atoi_s(argv[1], m);
@@ -88,6 +88,13 @@ int main(int argc, char **argv)
     if (argc>2) {
         n = atoi_s(argv[2], n);
     }
+    if (argc>3) {
+        gx = atoi_s(argv[3], gx);
+    }
+    if (argc>4) {
+        gy = atoi_s(argv[4], gy);
+    }
+    printf("m=%d, n=%d, gx=%d, gy=%d\n", m, n, gx, gy);
 	Mem = (mm*)&(mm::get());
 	Pointer<Node> *test;
 	test = new Pointer<Node>[n*m];
