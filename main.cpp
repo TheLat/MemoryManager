@@ -83,9 +83,6 @@ int main()
 			test[i + j*n].Allocate();
 		}
 	}
-	int z = sizeof(Node);
-	z = sizeof(Pointer<Node>);
-	z = sizeof(bool);
 
 	for (int i = 0; i < m; ++i) {
 		for (int j = 0; j < n; ++j) {
