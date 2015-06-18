@@ -90,9 +90,13 @@ int main(int argc, char **argv)
     }
     if (argc>3) {
         gx = atoi_s(argv[3], gx);
+    } else if (gx>m) {
+        gx = m - 2;
     }
     if (argc>4) {
         gy = atoi_s(argv[4], gy);
+    } else if (gy>m) {
+        gy = n - 2;
     }
     printf("m=%d, n=%d, gx=%d, gy=%d\n", m, n, gx, gy);
 	Mem = (mm*)&(mm::get());
