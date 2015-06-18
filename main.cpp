@@ -127,10 +127,10 @@ int main(int argc, char **argv)
 			if( j > 0) {
 				(*(test[j + i*n])).Left = ((test[(j - 1) + i*n]));
             }
-			if (i < m - 1) {
+			if (j < n - 1) {
 				(*(test[j + i*n])).Right = ((test[(j + 1) + i*n]));
 			}
-			if (j < n - 1) {
+			if (i < m - 1) {
 				(*(test[j + i*n])).Down = ((test[j + (i + 1)*n]));
             }
 

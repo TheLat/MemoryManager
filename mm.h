@@ -168,21 +168,21 @@ private:
 		char** temp = new(char*[NewTable + 1]);
 		memset(temp, 0, (NewTable + 1) * sizeof(int));
 		if (NumTables > 0)
-			memcpy(temp, tables, sizeof(int) * (NumTables + 1));
+			memcpy(temp, tables, sizeof(int) * (NumTables));
 		delete tables;
 		tables = temp;
 
 		int* tempsizes = new(int[NewTable + 1]);
 		memset(tempsizes, 0, (NewTable + 1) * sizeof(int));
 		if (NumTables > 0)
-			memcpy(tempsizes, sizes, sizeof(int) * (NumTables + 1));
+			memcpy(tempsizes, sizes, sizeof(int) * (NumTables));
 		delete sizes;
 		sizes = tempsizes;
 
 		int* tempGoodIndex = new(int[NewTable + 1]);
 		memset(tempGoodIndex, 0, (NewTable + 1)*sizeof(int));
 		if (NumTables > 0)
-			memcpy(tempGoodIndex, goodIndex, sizeof(int) * (NumTables + 1));
+			memcpy(tempGoodIndex, goodIndex, sizeof(int) * (NumTables));
 		delete goodIndex;
 		goodIndex = tempGoodIndex;
 
