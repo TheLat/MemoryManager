@@ -1,0 +1,8 @@
+#!/bin/sh
+
+unit_tests() {
+  make test
+}
+
+set -e
+unit_tests
