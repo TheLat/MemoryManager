@@ -1,7 +1,6 @@
 bin/
 Debug/
 Release/
-*.vcxproj
 *.opensdf
 *.sdf
 *.suo
