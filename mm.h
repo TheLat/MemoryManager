@@ -6,7 +6,7 @@
 #define INITIAL_SIZE 5
 
 #ifndef _MSC_VER
-void fopen_s(FILE **F, const char *filename, const char *options) {
+inline static void fopen_s(FILE **F, const char *filename, const char *options) {
 	*F = fopen(filename, options);
 }
 #endif
@@ -44,6 +44,8 @@ template<class T>
 void mmInitialize(T & val) {
 	hasInit<T>::Call_Optional(val);
 }
+
+
 template< typename T>
 struct hasDestroy
 {
@@ -86,17 +88,7 @@ class Pointer {
 private:
 	int index;
 	int size;
-	void Set(int i) {
-		int* count = (int*)mm::get().GetObject(index, size);
-		if (count != 0) {
-			(*count)--;
-			mm::get().GC(index, size);
-		}
-		index = i;
-		count = (int*)mm::get().GetObject(index, size);
-		if (count != 0)
-			(*count)++;
-	}
+	void Set(int i);
 	int GetIndex() const{
 		return index;
 	}
@@ -131,24 +123,12 @@ public:
 		Set(param.GetIndex());
 		return *this;
 	}
-	void Allocate() {
-		Set(mm::get().Allocate(size));
-		if (IsGood()) {
-			T* t = &Get();
-			mmInitialize<T>(*t);
-		}
-	}
-	T& operator* () {
-		return *((T*)(((int*)(mm::get().GetObject(index, size))) + 1));
-	}
-	T* operator& () {
-		return ((T*)(((int*)(mm::get().GetObject(index, size))) + 1));
-	}
-
-	T& Get() {
-		return *((T*)(((int*)(mm::get().GetObject(index, size))) + 1));
-	}
+	void Allocate();
+	T& operator* ();
+	T* operator& ();
+	T& Get();
 };
+
 
 class mm {
 	template <class T> friend class Pointer;
@@ -303,3 +283,36 @@ public:
 		return instance;
 	}
 };
+
+
+template<class T> void Pointer<T>::Set(int i) {
+   int* count = (int*)mm::get().GetObject(index, size);
+   if (count != 0) {
+       (*count)--;
+       mm::get().GC(index, size);
+   }
+   index = i;
+   count = (int*)mm::get().GetObject(index, size);
+   if (count != 0)
+       (*count)++;
+}
+
+template<class T> void Pointer<T>::Allocate() {
+   Set(mm::get().Allocate(size));
+   if (IsGood()) {
+       T* t = &Get();
+       mmInitialize<T>(*t);
+   }
+}
+
+template<class T> T& Pointer<T>::operator* () {
+   return *((T*)(((int*)(mm::get().GetObject(index, size))) + 1));
+}
+
+template<class T> T* Pointer<T>::operator& () {
+   return ((T*)(((int*)(mm::get().GetObject(index, size))) + 1));
+}
+
+template<class T> T& Pointer<T>::Get() {
+   return *((T*)(((int*)(mm::get().GetObject(index, size))) + 1));
+}

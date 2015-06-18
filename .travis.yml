@@ -1,0 +1,12 @@
+language: c
+compiler:
+  - gcc
+  - clang
+script:
+  - s/runtests
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq valgrind
+os:
+  - linux
+  - osx

@@ -1,6 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cassert>
+#include <cerrno>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "mm.h"
 
 /************************************************************
@@ -57,7 +59,15 @@ public:
 mm* Mem;
 int UID = 0;
 
-int main()
+static int atoi_s(const char *arg, int def) {
+    int val = atoi(arg);
+    if (val==0 && errno==EINVAL) {
+        return def;
+    }
+    return val;
+}
+
+int main(int argc, char **argv)
 {
 	/*
 	QueryPerformanceFrequency(&frequency);
@@ -66,12 +76,31 @@ int main()
 	double deltat = (t2.QuadPart - t1.QuadPart) * 1000.0 / frequency.QuadPart;
 	*/
 	Pointer<Node> Empty;
-	int m = 40;
-	int n = 79;
+	int m = 10;
+	int n = 10;
 	int sx = 1;
-	int sy = 17;
-	int gx = 46;
-	int gy = 17;
+	int sy = 1;
+	int gx = 8;
+	int gy = 8;
+    
+    if (argc>1) {
+        m = atoi_s(argv[1], m);
+    }
+    if (argc>2) {
+        n = atoi_s(argv[2], n);
+    }
+    if (argc>3) {
+        gx = atoi_s(argv[3], gx);
+    } else if (gx>m) {
+        gx = m - 2;
+    }
+    if (argc>4) {
+        gy = atoi_s(argv[4], gy);
+    } else if (gy>m) {
+        gy = n - 2;
+    }
+    assert(m>0 && n>0 && sx<=m && sy<=n && gx<=m && gy<=n);
+    printf("m=%d, n=%d, gx=%d, gy=%d\n", m, n, gx, gy);
 	Mem = (mm*)&(mm::get());
 	Pointer<Node> *test;
 	test = new Pointer<Node>[n*m];
@@ -83,9 +112,6 @@ int main()
 			test[i + j*n].Allocate();
 		}
 	}
-	int z = sizeof(Node);
-	z = sizeof(Pointer<Node>);
-	z = sizeof(bool);
 
 	for (int i = 0; i < m; ++i) {
 		for (int j = 0; j < n; ++j) {
