@@ -7,6 +7,8 @@ else
 GCC_HAS_STDC_FLAG = $(shell expr `g++ -dumpversion | cut -f1-2 -d.` \>= 4.7)
 ifeq "$(GCC_HAS_STDC_FLAG)" "1"
 CFLAGS+=-std=c++11
+else
+CFLAGS+=-std=c++0x
 endif
 endif
 
