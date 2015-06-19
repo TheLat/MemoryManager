@@ -120,14 +120,15 @@ public:
 	}
 	~Pointer(){
 		if (IsGood()) {
-			mmRecursiveDestroy(Get());
 			Destroy();
 		}
 		Clear();
 	}
 	void Destroy() {
-		if (IsGood())
+		if (IsGood()) {
+			mmRecursiveDestroy(Get());
 			mmDestroy(Get());
+		}
 		Clear();
 	}
 	void Clear() {
