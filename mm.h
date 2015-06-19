@@ -101,6 +101,7 @@ template <class T>
 class Pointer {
 	friend class Pointer < T >;
 private:
+	bool destroyed;
 	int index;
 	int size;
 	void Set(int i);
@@ -109,6 +110,9 @@ private:
 	}
 	int GetSize() const{
 		return size;
+	}
+	void Clear() {
+		Set(-1);
 	}
 public:
 	Pointer(){
@@ -125,14 +129,14 @@ public:
 		Clear();
 	}
 	void Destroy() {
+		if (destroyed)
+			return;
+		destroyed = true;
 		if (IsGood()) {
 			mmRecursiveDestroy(Get());
 			mmDestroy(Get());
 		}
 		Clear();
-	}
-	void Clear() {
-		Set(-1);
 	}
 	bool IsGood(){
 		if (size > 0 && index >= 0)
@@ -143,6 +147,8 @@ public:
 		if (this == &param)
 			return *this;
 		Set(param.GetIndex());
+		if (IsGood())
+			destroyed = false;
 		return *this;
 	}
 	operator bool(){
@@ -328,6 +334,7 @@ template<class T> void Pointer<T>::Allocate() {
        T* t = &Get();
        mmInitialize<T>(*t);
 	   mmRecursiveInitialize(*t);
+	   destroyed = false;
    }
 }
 
