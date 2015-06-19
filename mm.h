@@ -40,11 +40,6 @@ struct hasInit
 	}
 };
 
-template<class T>
-void mmInitialize(T & val) {
-	hasInit<T>::Call_Optional(val);
-}
-
 
 template< typename T>
 struct hasDestroy
@@ -77,8 +72,28 @@ struct hasDestroy
 };
 
 template<class T>
+void mmInitialize(T & val) {
+	hasInit<T>::Call_Optional(val);
+}
+
+template<class T>
 void mmDestroy(T & val) {
 	hasDestroy<T>::Call_Optional(val);
+}
+
+template<typename T, int size> void mmRecursiveInitialize(T(&val)[size]){
+	for (int i = 0; i < size; ++i) {
+		mmInitialize(val[i]);
+	}
+}
+template<typename T> void mmRecursiveInitialize(T(&)){
+}
+template<typename T, int size> void mmRecursiveDestroy(T(&val)[size]){
+	for (int i = 0; i < size; ++i) {
+		mmDestroy(val[i]);
+	}
+}
+template<typename T> void mmRecursiveDestroy(T(&)){
 }
 
 
@@ -105,9 +120,15 @@ public:
 	}
 	~Pointer(){
 		if (IsGood()) {
-			mmDestroy(Get());
+			mmRecursiveDestroy(Get());
+			Destroy();
 		}
-		Set(-1);
+		Clear();
+	}
+	void Destroy() {
+		if (IsGood())
+			mmDestroy(Get());
+		Clear();
 	}
 	void Clear() {
 		Set(-1);
@@ -305,6 +326,7 @@ template<class T> void Pointer<T>::Allocate() {
    if (IsGood()) {
        T* t = &Get();
        mmInitialize<T>(*t);
+	   mmRecursiveInitialize(*t);
    }
 }
 
