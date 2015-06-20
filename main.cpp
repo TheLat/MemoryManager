@@ -74,11 +74,19 @@ static int atoi_s(const char *arg, int def) {
 #define MAX_Y 22
 
 float EstimateCost(int start, int end) {
-	int sx = start % MAX_X;
-	int sy = start / MAX_X;
-	int gx = end % MAX_X;
-	int gy = end / MAX_X;
-	return float(abs(gx - sx) + abs(gy - sy));
+	Pointer<int> x1;
+	x1.Allocate();
+	*x1 = start % MAX_X;
+	Pointer<int> y1;
+	y1.Allocate();
+	*y1 = start / MAX_X;
+	Pointer<int> x2;
+	x2.Allocate();
+	*x2 = end % MAX_X;
+	Pointer<int> y2;
+	y2.Allocate();
+	*y2 = end / MAX_X;
+	return float(abs(*x2 - *x1) + abs(*y2 - *y1));
 }
 
 int main(int argc, char **argv)
