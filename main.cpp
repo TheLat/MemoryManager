@@ -9,10 +9,8 @@
 *
 *	This is a file that will eventually contain various tests
 *	and examples for the memory manager.  For now, it
-*	contains an extremely hacky implementation of Djikstra's
-*	algorith.
-*
-*	Testing with A* now.  Hopefully less hacky this time around.
+*	contains an extremely hacky implementation of A* 
+*	pathfinding.
 *
 ************************************************************/
 
