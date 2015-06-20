@@ -151,6 +151,11 @@ public:
 			destroyed = false;
 		return *this;
 	}
+	bool operator==(const Pointer& param) {
+		if (index == param.GetIndex() && size == param.GetSize())
+			return true;
+		return false;
+	}
 	operator bool(){
 		return (IsGood());
 	}
