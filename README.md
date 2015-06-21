@@ -5,6 +5,6 @@ I am writing a memory manager to make life easier in C++.  The goal is to create
 * Handles Pointers To Primitives:  Yes
 * Handles Pointers To Objects:  Yes
 * Handles Pointers To Arrays Of Objects:  Yes
-* Handles Pointers To Dynamic Arrays:  *No*
-* Ability To Start Tables At Previous Maximum Load:  *No*
-* Threadsafe: *No*
+* Handles Pointers To Dynamic Arrays:  **No**
+* Ability To Start Tables At Previous Maximum Load:  **No**
+* Threadsafe: **No**
