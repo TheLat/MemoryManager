@@ -41,11 +41,10 @@ public:
 		Destroy();
 	}
 	void Destroy(){
-		Pointer<Node> Empty;
-		Up = Empty;
-		Down = Empty;
-		Left = Empty;
-		Right = Empty;
+		Up.Clear();
+		Down.Clear();
+		Left.Clear();
+		Right.Clear();
 	}
 	void Init() {
 		Up.Init();

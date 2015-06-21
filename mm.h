@@ -111,9 +111,6 @@ private:
 	int GetSize() const{
 		return size;
 	}
-	void Clear() {
-		Set(-1);
-	}
 public:
 	Pointer(){
 		Init();
@@ -137,6 +134,9 @@ public:
 			mmDestroy(Get());
 		}
 		Clear();
+	}
+	void Clear() {
+		Set(-1);
 	}
 	bool IsGood(){
 		if (size > 0 && index >= 0)
@@ -324,6 +324,15 @@ public:
 template<class T> void Pointer<T>::Set(int i) {
    int* count = (int*)mm::get().GetObject(index, size);
    if (count != 0) {
+	   if (*count == 1) {
+		   if (!destroyed){
+			   destroyed = true;
+			   if (IsGood()) {
+				   mmRecursiveDestroy(Get());
+				   mmDestroy(Get());
+			   }
+		   }
+	   }
        (*count)--;
        mm::get().GC(index, size);
    }
