@@ -15,7 +15,7 @@ I am writing a memory manager to make life easier in C++.  The goal is to create
 
 ### Use:
 #### Declaration:
-    Access to the memory manager's contents are extremely limited and should be done exclusively through the Pointer class.  Declaring a pointer should look like this:
+Access to the memory manager's contents are extremely limited and should be done exclusively through the Pointer class.  Declaring a pointer should look like this:
 ```
 Pointer<object> Variable;
 ```
