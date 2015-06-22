@@ -8,7 +8,7 @@ I am writing a memory manager to make life easier in C++.  The goal is to create
 * Destructors:  Yes
 * Handles Pointers To Primitives:  Yes
 * Handles Pointers To Objects:  Yes
-* Handles Pointers To Arrays Of Objects:  Yes
+* Handles Pointers To Static Arrays Of Objects:  Yes
 * Handles Pointers To Dynamic Arrays:  **No**
 * Detects And Frees Arbitrary Graphs With No External References:  **No**
 * Ability To Start Tables At Previous Maximum Load:  **No**
