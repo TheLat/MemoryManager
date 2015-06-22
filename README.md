@@ -10,6 +10,7 @@ I am writing a memory manager to make life easier in C++.  The goal is to create
 * Handles Pointers To Objects:  Yes
 * Handles Pointers To Arrays Of Objects:  Yes
 * Handles Pointers To Dynamic Arrays:  **No**
+* Detects And Frees Arbitrary Graphs With No External References:  **No**
 * Ability To Start Tables At Previous Maximum Load:  **No**
 * Threadsafe: **No**
 
@@ -47,3 +48,27 @@ The comparison operator will return true if both pointers are pointing to the sa
 operator bool()
 ```
 Using the Pointer in boolean expressions will evaluate whether or not the Pointer points to a valid object.
+```
+T& operator*()
+```
+Using the dereference operator gives you a reference to the object.  As with normal pointers, this will crash if you dereference a bad pointer.
+```
+T* operator&()
+```
+Using the reference operator will give you the actual memory address of the object the pointer is pointing to.  This is not recommended, as the tables can grow, which will break the raw memory addresses, though not the way that the Pointer class accesses the object.
+```
+T& Get()
+```
+Equivalent to the * operator.
+
+#### Statistics Logging
+The memory manager will save its statistics to "Memory Stats.txt" in the folder that it is run in.  This is provided in plain text format and tells both the largest levels of memory used and memory that the memory manager detects as being un-freed.  This is done by scanning through the reference counts of all memory allocated.
+
+#### Memory tracking
+The memory manager tracks whether or not an object has any pointers to it is by reference counting.  The Pointer class, when the assignment operator is called, will decrement its current object's reference count and increment its new object's reference count.
+
+#### Memory Growing
+When an object is allocated and there is no more space available in the table, the memory manager will allocate a new table twice the size of the old table, copy the old table to the new table, and free the old table.  If a table has not been allocated, it will allocate a new table of size INITIAL_SIZE, which is set to 5.
+
+#### Memory Shrinking
+The memory manager does not shrink tables.
