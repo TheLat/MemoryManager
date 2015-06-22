@@ -62,7 +62,7 @@ T& Get()
 Equivalent to the * operator.
 
 #### Statistics Logging
-The memory manager will save its statistics to "Memory Stats.txt" in the folder that it is run in.  This is provided in plain text format and tells both the largest levels of memory used and memory that the memory manager detects as being un-freed.  This is done by scanning through the reference counts of all memory allocated.
+The memory manager will save its statistics to "Memory Stats.txt" in the folder that it is run in.  This is provided in plain text, human-readable format and tells both the largest levels of memory used and memory that the memory manager detects as being un-freed.  This is done by scanning through the reference counts of all memory allocated.
 
 #### Memory tracking
 The memory manager tracks whether or not an object has any pointers to it is by reference counting.  The Pointer class, when the assignment operator is called, will decrement its current object's reference count and increment its new object's reference count.  Pointers do not know their memory address.  They know the size of their template and the index into the array.
