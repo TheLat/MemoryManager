@@ -65,10 +65,13 @@ Equivalent to the * operator.
 The memory manager will save its statistics to "Memory Stats.txt" in the folder that it is run in.  This is provided in plain text format and tells both the largest levels of memory used and memory that the memory manager detects as being un-freed.  This is done by scanning through the reference counts of all memory allocated.
 
 #### Memory tracking
-The memory manager tracks whether or not an object has any pointers to it is by reference counting.  The Pointer class, when the assignment operator is called, will decrement its current object's reference count and increment its new object's reference count.
+The memory manager tracks whether or not an object has any pointers to it is by reference counting.  The Pointer class, when the assignment operator is called, will decrement its current object's reference count and increment its new object's reference count.  Pointers do not know their memory address.  They know the size of their template and the index into the array.
 
 #### Memory Growing
 When an object is allocated and there is no more space available in the table, the memory manager will allocate a new table twice the size of the old table, copy the old table to the new table, and free the old table.  If a table has not been allocated, it will allocate a new table of size INITIAL_SIZE, which is set to 5.
 
 #### Memory Shrinking
 The memory manager does not shrink tables.
+
+#### Benchmarking
+Data to come.
