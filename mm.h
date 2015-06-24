@@ -111,7 +111,7 @@ private:
 	int GetSize() const{
 		return size;
 	}
-	int* RefCount() {
+	int* CountReferences() {
 		return (int*)mm::get().GetObject(index, size);
 	}
 public:
@@ -123,7 +123,7 @@ public:
 		size = sizeof(T);
 	}
 	~Pointer(){
-		if (IsGood() && RefCount() && *RefCount() == 1) {
+		if (IsGood() && CountReferences() && *CountReferences() == 1) {
 			Destroy();
 		}
 		Clear();
@@ -325,7 +325,7 @@ public:
 
 
 template<class T> void Pointer<T>::Set(int i) {
-   int* count = RefCount();
+   int* count = CountReferences();
    if (count != 0) {
 	   if (*count == 1) {
 		   if (!destroyed){
@@ -340,7 +340,7 @@ template<class T> void Pointer<T>::Set(int i) {
        mm::get().GC(index, size);
    }
    index = i;
-   count = RefCount();
+   count = CountReferences();
    if (count != 0)
        (*count)++;
 }
