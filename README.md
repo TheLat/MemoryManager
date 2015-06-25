@@ -10,7 +10,7 @@ I am writing a memory manager to make life easier in C++.  The goal is to create
 * Handles Pointers To Objects:  Yes
 * Handles Pointers To Static Arrays Of Objects:  Yes
 * Handles Pointers To Dynamic Arrays:  **No**
-* Detects And Frees Arbitrary Graphs With No External References:  **No**
+* Detects And Frees Arbitrary Graphs With No External References:  Yes, see RefCount
 * Ability To Start Tables At Previous Maximum Load:  **No**
 * Threadsafe: **No**
 
@@ -20,21 +20,26 @@ Access to the memory manager's contents are extremely limited and should be done
 ```
 Pointer<object> Variable;
 ```
-object can be any data type.  On declaration, variable's Init() function will automatically be called.  This will also call object's Init() function, if it exists and follows the following declaration:
-```
-void Init();
-```
-If object is an array of objects, it will call every element's Init() function.
+object can be any data type.  On declaration, variable's Init() function will automatically be called.  This will set Variable to the null pointer.
 #### Destruction:
-When a Pointer falls out of scope or is deleted (shame on you), it will call the Destroy function of the object it's pointing to if it is a valid pointer and if the object's destroy function follows the following declaration:
+When a Pointer falls out of scope or is deleted (shame on you), it will set itself to the null pointer.  If this is the last pointer pointing to the object, then it will call the object's Destroy() function if it is declared like this:
 ```
 void Destroy();
 ```
-and if this Pointer is the last pointer pointing to the object.  Then it will set itself to the invalid pointer.  If you need to trigger this, you can call the Pointer's Destroy() function.
+Regard this function as the object's destructor.
 #### Null Pointer:
-A Pointer's default state is the null pointer and can be used in if statements as normal pointers can, though it has slightly deeper validation checking.  Using the un-dereferenced pointer in an if statement is equivalent to calling the IsGood() function.  You can set a Pointer to the null pointer by calling the Clear() function.  If this pointer is the last pointer to the object, it will call the Destroy function of that object, if it exists.  In general, this should be done over calling the Destroy() fuction.
+A Pointer's default state is the null pointer and can be used in if statements as normal pointers can, though it has slightly deeper validation checking.  Using the un-dereferenced pointer in an if statement is equivalent to calling the IsGood() function.  You can set a Pointer to the null pointer by calling the Destroy() function.  If this pointer is the last pointer to the object, it will call the Destroy() function of that object, if it exists.  In general, this should be done over calling the Destroy() fuction.
 #### Allocation:
-You can allocate a new object to a pointer by calling its Allocate() function.  This will implicitly call Clear(), and Destroy() if appropriate.
+You can allocate a new object to a pointer by calling its Allocate() function.  This will call the pointer's Destroy() function prior to allocating a new object.  This will call the new allocated object's Init() function if it exists and is declared like this:
+```
+void Init();
+```
+#### RefCount:
+The memory manager tracks whether or not an object is lost by tracking the number of references to an object.  In some data structures, such as a graph (which exists in the example provided), reference counting is inadequate.  In those cases, you must write the RefCount() function which must be declared like this:
+```
+int RefCount();
+```
+Traversing an arbitrary graph to count all possible references is slow and impractical.  Unfortunately, you must write a function that looks at the graph and returns the number of references to the object contained within the graph.  The simpler and more efficient this function is, the better.
 #### Pointer Operations:
 ```
 Pointer& operator=(const Pointer& param)
