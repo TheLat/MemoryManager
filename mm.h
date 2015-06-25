@@ -71,6 +71,38 @@ struct hasDestroy
 	}
 };
 
+
+
+template< typename T>
+struct hasRefCount
+{
+	template<typename U>
+	static std::true_type Check(int (U::*)()) {
+		return std::true_type();
+	}
+	template <typename U>
+	static decltype(Check(&U::RefCount))
+		Check(decltype(&U::RefCount), int *) {
+		typedef decltype(Check(&U::RefCount)) return_type;
+		return return_type();
+	}
+	template<typename U>
+	static std::false_type Check(...) {
+		return std::false_type();
+	}
+	typedef decltype(Check<T>(0, 0)) type;
+	static const bool value = type::value;
+	static int Call_Optional(T & t, std::true_type) {
+		return t.RefCount();
+	}
+	static int Call_Optional(...){
+		return 0;
+	}
+	static int Call_Optional(T & t) {
+		return Call_Optional(t, type());
+	}
+};
+
 template<class T>
 void mmInitialize(T & val) {
 	hasInit<T>::Call_Optional(val);
@@ -80,6 +112,12 @@ template<class T>
 void mmDestroy(T & val) {
 	hasDestroy<T>::Call_Optional(val);
 }
+
+template<class T>
+int mmRefCount(T & val) {
+	return hasRefCount<T>::Call_Optional(val);
+}
+
 
 template<typename T, int size> void mmRecursiveInitialize(T(&val)[size]){
 	for (int i = 0; i < size; ++i) {
@@ -114,6 +152,18 @@ private:
 	int* CountReferences() {
 		return (int*)mm::get().GetObject(index, size);
 	}
+	void DestroyContents() {
+		if (destroyed)
+			return;
+		if (IsGood() && CountReferences() && *CountReferences() == mmRefCount(Get())) {
+			mmRecursiveDestroy(Get());
+			mmDestroy(Get());
+			destroyed = true;
+		}
+	}
+	void Clear() {
+		Set(-1);
+	}
 public:
 	Pointer(){
 		Init();
@@ -123,22 +173,9 @@ public:
 		size = sizeof(T);
 	}
 	~Pointer(){
-		if (IsGood() && CountReferences() && *CountReferences() == 1) {
-			Destroy();
-		}
 		Clear();
 	}
 	void Destroy() {
-		if (destroyed)
-			return;
-		destroyed = true;
-		if (IsGood()) {
-			mmRecursiveDestroy(Get());
-			mmDestroy(Get());
-		}
-		Clear();
-	}
-	void Clear() {
 		Set(-1);
 	}
 	bool IsGood(){
@@ -327,22 +364,16 @@ public:
 template<class T> void Pointer<T>::Set(int i) {
    int* count = CountReferences();
    if (count != 0) {
-	   if (*count == 1) {
-		   if (!destroyed){
-			   destroyed = true;
-			   if (IsGood()) {
-				   mmRecursiveDestroy(Get());
-				   mmDestroy(Get());
-			   }
-		   }
-	   }
-       (*count)--;
+	   (*count)--;
+	   DestroyContents();
        mm::get().GC(index, size);
    }
    index = i;
    count = CountReferences();
-   if (count != 0)
-       (*count)++;
+   if (count != 0) {
+	   (*count)++;
+	   destroyed = false;
+   }
 }
 
 template<class T> void Pointer<T>::Allocate() {

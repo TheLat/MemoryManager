@@ -41,10 +41,26 @@ public:
 		Destroy();
 	}
 	void Destroy(){
-		Up.Clear();
-		Down.Clear();
-		Left.Clear();
-		Right.Clear();
+		if (Up && Up.Get().Down) {
+			Up.Get().Down.Destroy();
+		}
+		if (Up)
+			Up.Destroy();
+		if (Down && Down.Get().Up) {
+			Down.Get().Up.Destroy();
+		}
+		if (Down)
+			Down.Destroy();
+		if (Left && Left.Get().Right) {
+			Left.Get().Right.Destroy();
+		}
+		if (Left)
+			Left.Destroy();
+		if (Right && Right.Get().Left) {
+			Right.Get().Left.Destroy();
+		}
+		if (Right)
+			Right.Destroy();
 	}
 	void Init() {
 		Up.Init();
@@ -53,6 +69,18 @@ public:
 		Right.Init();
 		path = false;
 		passable = true;
+	}
+	int RefCount() {
+		int out = 0;
+		if (Up && Up.Get().Down)
+			out++;
+		if (Down && Down.Get().Up)
+			out++;
+		if (Left && Left.Get().Right)
+			out++;
+		if (Right && Right.Get().Left)
+			out++;
+		return out;
 	}
 };
 
