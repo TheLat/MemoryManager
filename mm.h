@@ -138,67 +138,25 @@ template<typename T> void mmRecursiveDestroy(T(&)){
 template <class T>
 class Pointer {
 	friend class Pointer < T >;
-private:
+protected:
 	bool destroyed;
 	int index;
 	int size;
 	void Set(int i);
-	int GetIndex() const{
-		return index;
-	}
-	int GetSize() const{
-		return size;
-	}
-	int* CountReferences() {
-		return (int*)mm::get().GetObject(index, size);
-	}
-	void DestroyContents() {
-		if (destroyed)
-			return;
-		if (IsGood() && CountReferences() && *CountReferences() == mmRefCount(Get())) {
-			mmRecursiveDestroy(Get());
-			mmDestroy(Get());
-			destroyed = true;
-		}
-	}
-	void Clear() {
-		Set(-1);
-	}
+	int GetIndex() const;
+	int GetSize() const;
+	int* CountReferences();
+	void DestroyContents();
+	void Clear();
 public:
-	Pointer(){
-		Init();
-	}
-	void Init(){
-		index = -1;
-		size = sizeof(T);
-	}
-	~Pointer(){
-		Clear();
-	}
-	void Destroy() {
-		Set(-1);
-	}
-	bool IsGood(){
-		if (size > 0 && index >= 0)
-			return true;
-		return false;
-	}
-	Pointer& operator=(const Pointer& param) {
-		if (this == &param)
-			return *this;
-		Set(param.GetIndex());
-		if (IsGood())
-			destroyed = false;
-		return *this;
-	}
-	bool operator==(const Pointer& param) {
-		if (index == param.GetIndex() && size == param.GetSize())
-			return true;
-		return false;
-	}
-	operator bool(){
-		return (IsGood());
-	}
+	Pointer();
+	void Init();
+	~Pointer();
+	void Destroy();
+	bool IsGood();
+	Pointer& operator=(const Pointer& param);
+	bool operator==(const Pointer& param);
+	operator bool();
 	void Allocate();
 	T& operator* ();
 	T* operator& ();
@@ -396,4 +354,72 @@ template<class T> T* Pointer<T>::operator& () {
 
 template<class T> T& Pointer<T>::Get() {
    return *((T*)(((int*)(mm::get().GetObject(index, size))) + 1));
+}
+
+template<class T> Pointer<T>::operator bool(){
+	return (IsGood());
+}
+
+template<class T> bool Pointer<T>::operator==(const Pointer& param) {
+	if (index == param.GetIndex() && size == param.GetSize())
+		return true;
+	return false;
+}
+
+template<class T> Pointer<T>& Pointer<T>::operator=(const Pointer& param) {
+	if (this == &param)
+		return *this;
+	Set(param.GetIndex());
+	if (IsGood())
+		destroyed = false;
+	return *this;
+}
+
+template<class T> bool Pointer<T>::IsGood(){
+	if (size > 0 && index >= 0)
+		return true;
+	return false;
+}
+
+template<class T> void Pointer<T>::Destroy() {
+	Set(-1);
+}
+
+template<class T> Pointer<T>::~Pointer(){
+	Clear();
+}
+
+template<class T> void Pointer<T>::Init(){
+	index = -1;
+	size = sizeof(T);
+}
+
+template<class T> Pointer<T>::Pointer(){
+	Init();
+}
+
+template<class T> void Pointer<T>::Clear() {
+	Set(-1);
+}
+
+template<class T> void Pointer<T>::DestroyContents() {
+	if (destroyed)
+		return;
+	if (IsGood() && CountReferences() && *CountReferences() == mmRefCount(Get())) {
+		mmRecursiveDestroy(Get());
+		mmDestroy(Get());
+		destroyed = true;
+	}
+}
+
+template<class T> int* Pointer<T>::CountReferences() {
+	return (int*)mm::get().GetObject(index, size);
+}
+
+template<class T> int Pointer<T>::GetSize() const{
+	return size;
+}
+
+template<class T> int Pointer<T>::GetIndex() const{
+	return index;
 }
