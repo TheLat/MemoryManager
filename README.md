@@ -11,6 +11,7 @@ I am writing a memory manager to make life easier in C++.  The goal is to create
 * Handles Pointers To Static Arrays Of Objects:  Yes
 * Handles Pointers To Dynamic Arrays:  **No**
 * Detects And Frees Arbitrary Graphs With No External References:  Yes, see RefCount
+* Debugging-friendly:  **No**
 * Ability To Start Tables At Previous Maximum Load:  **No**
 * Threadsafe: **No**
 
@@ -39,7 +40,7 @@ The memory manager tracks whether or not an object is lost by tracking the numbe
 ```
 int RefCount();
 ```
-Traversing an arbitrary graph to count all possible references is slow and impractical.  Unfortunately, you must write a function that looks at the graph and returns the number of references to the object contained within the graph.  The simpler and more efficient this function is, the better.
+Traversing an arbitrary graph to count all possible references is slow and impractical.  Unfortunately, you must write a function that looks at the graph and returns the number of references to the object contained within the graph.  The simpler and more efficient this function is, the better.  This function is required or cleanup of a doubly-linked list, though not a singly-linked list.
 #### Pointer Operations:
 ```
 Pointer& operator=(const Pointer& param)
