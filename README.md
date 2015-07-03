@@ -72,7 +72,7 @@ Dynamic arrays can be declared like this:
 ```
 Pointer<object, 1> Variable;
 ```
-You can replace the number with any number, though must be a constant and must be greater than 0.  This number will be the initial size of the array.  TODO:  Handle dynamic arrays of length 0.
+You can replace the number with any number, though must be a constant and must be positive.  This number will be the initial size of the array.  If this number is 0, it will be treated as a null pointer and can't be allocated.
 ```
 T& operator[] (int i)
 ```
