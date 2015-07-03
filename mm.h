@@ -197,7 +197,7 @@ public:
 		index = mm::get().Allocate(sizeof(T)*newlength);
 		length = newlength;
 		void* newobj = mm::get().GetObject(index, sizeof(T)*length);
-		memcpy(newobj, oldobj, (sizeof(T) + sizeof(int))*oldlength);
+		memcpy(newobj, oldobj, oldlength < length ? (sizeof(T) + sizeof(int))*oldlength : (sizeof(T) + sizeof(int))*length);
 		mm::get().Shred(oldindex, sizeof(T)*oldlength);
 		if (oldlength < length) {
 			for (int i = oldlength; i < length; ++i) {
