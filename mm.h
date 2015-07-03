@@ -260,7 +260,6 @@ public:
 		return (IsGood());
 	}
 	void Allocate(){
-		int j = sizeof(T);
 		Set(mm::get().Allocate(sizeof(T)*length));
 		if (IsGood()) {
 			if (!IsArray()) {
@@ -311,12 +310,14 @@ private:
 		tables[index] = newtable;
 		int oldsize = sizes[index];
 		sizes[index] = newsize;
-
-		for (int i = oldsize; i < newsize; ++i) {
-			*((int*)(GetObject(i, index)) + (sizeof(void*) / sizeof(int))) = i + 1;
+		
+		if (index >= 4) {
+			for (int i = oldsize; i < newsize; ++i) {
+				*((int*)(GetObject(i, index)) + (sizeof(void*) / sizeof(int))) = i + 1;
+			}
+			*((int*)(GetObject(newsize - 1, index)) + (sizeof(void*) / sizeof(int))) = -1;
+			goodIndex[index] = oldsize;
 		}
-		*((int*)(GetObject(newsize - 1, index)) + (sizeof(void*) / sizeof(int))) = -1;
-		goodIndex[index] = oldsize;
 	}
 	void GrowTables(int NewTable){
 		if (NewTable < NumTables) {
