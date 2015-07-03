@@ -11,7 +11,8 @@ I am writing a memory manager to make life easier in C++.  The goal is to create
 * Handles Pointers To Static Arrays Of Objects:  Yes
 * Handles Pointers To Dynamic Arrays:  Yes
 * Detects And Frees Arbitrary Graphs With No External References:  Yes, see RefCount
-* Debugging-friendly:  **No**
+* Debugging-friendly:  Yes
+* Handles Dynamic Arrays Of Length Zero:  **No**
 * Ability To Start Tables At Previous Maximum Load:  **No**
 * Threadsafe: **No**
 
@@ -71,7 +72,7 @@ Dynamic arrays can be declared like this:
 ```
 Pointer<object, 1> Variable;
 ```
-You can replace the number with any number, though must be a constant.  This number will be the initial size of the array.
+You can replace the number with any number, though must be a constant and must be greater than 0.  This number will be the initial size of the array.
 ```
 T& operator[] (int i)
 ```
