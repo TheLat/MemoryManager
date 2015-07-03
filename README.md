@@ -12,7 +12,7 @@ I am writing a memory manager to make life easier in C++.  The goal is to create
 * Handles Pointers To Dynamic Arrays:  Yes
 * Detects And Frees Arbitrary Graphs With No External References:  Yes, see RefCount
 * Debugging-friendly:  Yes
-* Handles Dynamic Arrays Of Length Zero:  **No**
+* Handles Dynamic Arrays Of Length Zero:  Yes
 * Ability To Start Tables At Previous Maximum Load:  **No**
 * Threadsafe: **No**
 
@@ -54,7 +54,7 @@ The comparison operator will return true if both pointers are pointing to the sa
 ```
 operator bool()
 ```
-Using the Pointer in boolean expressions will evaluate whether or not the Pointer points to a valid object.
+Using the Pointer in boolean expressions will evaluate whether or not the Pointer points to a valid object.  If the Pointer is to a dynamic array, this will return false if the array is of length 0 or is not allocated.
 ```
 T& operator*()
 ```
@@ -84,7 +84,7 @@ Returns the length of the array if the pointer is to a dynamic array or 1 if it 
 ```
 void Resize(int newlength)
 ```
-If the object is a dynamic array, this will change the array to the new size.  If newlength is greater than the old length, it will call Init() on all new objects in the array, if they have an Init function.  If it is less than the old length, it will call Destroy() on all of the lost objects, if they have a Destroy function.
+If the object is a dynamic array, this will change the array to the new size.  If newlength is greater than the old length, it will call Init() on all new objects in the array, if they have an Init function.  If it is less than the old length, it will call Destroy() on all of the lost objects, if they have a Destroy function.  If the Pointer has not been allocated, this function will allocate it.
 #### Statistics Logging
 The memory manager will save its statistics to "Memory Stats.txt" in the folder that it is run in.  This is provided in plain text, human-readable format and tells both the largest levels of memory used and memory that the memory manager detects as being un-freed.  This is done by scanning through the reference counts of all memory allocated.
 

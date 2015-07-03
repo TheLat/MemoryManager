@@ -201,6 +201,11 @@ public:
 		int oldindex = index;
 		int oldlength = length;
 		void* oldobj = mm::get().GetObject(oldindex, sizeof(T)*oldlength);
+		if (oldlength > newlength) {
+			for (int i = newlength; i < oldlength; ++i) {
+				mmDestroy((*this)[i]);
+			}
+		}
 		index = mm::get().Allocate(sizeof(T)*newlength);
 		length = newlength;
 		void* newobj = mm::get().GetObject(index, sizeof(T)*length);
@@ -211,10 +216,16 @@ public:
 				mmInitialize((*this)[i]);
 			}
 		}
-		else if (oldlength > length) {
-			for (int i = length; i < oldlength; ++i) {
-				mmDestroy((*this)[i]);
-			}
+		if (!oldobj) {
+			int* count = CountReferences();
+			if (count)
+				(*count)++;
+		}
+		if (length > 0) {
+			destroyed = false;
+		}
+		else {
+			destroyed = true;
 		}
 	}
 	T& operator[] (int i){
@@ -234,6 +245,7 @@ public:
 			length = 1;
 	}
 	~Pointer(){
+		int k = sizeof(T);
 		Clear();
 	}
 	void Destroy(){
@@ -407,8 +419,10 @@ private:
 		return (void*)&tables[size][index*(size + sizeof(int))];
 	}
 	void Shred(int index, int size) {
-		memset((void*)&tables[size][index*(size + sizeof(int))], 0, size + sizeof(int));
-		GC(index, size);
+		if (index >= 0) {
+			memset((void*)&tables[size][index*(size + sizeof(int))], 0, size + sizeof(int));
+			GC(index, size);
+		}
 	}
 	void GC(int index, int size) {
 		if (size >= 4) {

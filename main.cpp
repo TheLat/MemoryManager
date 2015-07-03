@@ -164,8 +164,7 @@ int main(int argc, char **argv)
 	printf("mx=%d, my=%d, gx=%d, gy=%d\n", *mx, *my, *gx, *gy);
 	Mem = (mm*)&(mm::get());
 
-	Pointer<Pointer<Node>, 1> Grid;
-	Grid.Allocate();
+	Pointer<Pointer<Node>, 0> Grid;
 	Grid.Resize(MAX_X*MAX_Y);
 	Pointer<int> x, y;
 	x.Allocate();
