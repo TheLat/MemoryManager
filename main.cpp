@@ -164,16 +164,16 @@ int main(int argc, char **argv)
 	printf("mx=%d, my=%d, gx=%d, gy=%d\n", *mx, *my, *gx, *gy);
 	Mem = (mm*)&(mm::get());
 
-	Pointer<Pointer<Node>[MAX_X*MAX_Y]> Grid;
-	Grid.Init();
+	Pointer<Pointer<Node>, 1> Grid;
 	Grid.Allocate();
+	Grid.Grow(MAX_X*MAX_Y);
 	Pointer<int> x, y;
 	x.Allocate();
 	y.Allocate();
 	for (*y = 0; *y < *my; ++*y) {
 		for (*x = 0; *x < *mx; ++*x) {
-			(*Grid)[*x + (*y**mx)].Allocate();
-			(*Grid)[*x + (*y**mx)].Get().UID = *UID;
+			Grid[*x + (*y**mx)].Allocate();
+			Grid[*x + (*y**mx)].Get().UID = *UID;
 			*UID = *UID + 1;
 		}
 	}
@@ -181,31 +181,31 @@ int main(int argc, char **argv)
 	for (*y = 0; *y < *my; ++*y) {
 		for (*x = 0; *x < *mx; ++*x) {
 			if ((*x == 0) || (*y == 0) || (*x >= *mx - 1) || (*y >= *my - 1)){
-				(*Grid)[*x + (*y**mx)].Get().passable = false;
+				Grid[*x + (*y**mx)].Get().passable = false;
 			}
 			if (*x > 0) {
-				(*Grid)[*x + (*y**mx)].Get().Left = (*Grid)[(*x - 1) + ((*y)**mx)];
+				Grid[*x + (*y**mx)].Get().Left = Grid[(*x - 1) + ((*y)**mx)];
 			}
 			if (*x < *mx - 1) {
-				(*Grid)[*x + (*y**mx)].Get().Right = (*Grid)[(*x + 1) + ((*y)**mx)];
+				Grid[*x + (*y**mx)].Get().Right = Grid[(*x + 1) + ((*y)**mx)];
 			}
 			if (*y > 0) {
-				(*Grid)[*x + (*y**mx)].Get().Up = (*Grid)[(*x) + ((*y - 1)**mx)];
+				Grid[*x + (*y**mx)].Get().Up = Grid[(*x) + ((*y - 1)**mx)];
 			}
 			if (*y < *my - 1) {
-				(*Grid)[*x + (*y**mx)].Get().Down = (*Grid)[(*x) + ((*y + 1)**mx)];
+				Grid[*x + (*y**mx)].Get().Down = Grid[(*x) + ((*y + 1)**mx)];
 			}
 		}
 	}
 
 	Pointer<Node> walker;
 	for (*x = 0; *x < *mx/10; ++*x) {
-		walker = (*Grid)[*x * 10 + 5 + 3 * *mx];
+		walker = Grid[*x * 10 + 5 + 3 * *mx];
 		while (walker) {
 			(*walker).passable = false;
 			walker = (*walker).Down;
 		}
-		walker = (*Grid)[*x * 10 + 10 + (*my - 3) * *mx];
+		walker = Grid[*x * 10 + 10 + (*my - 3) * *mx];
 		while (walker) {
 			(*walker).passable = false;
 			walker = (*walker).Up;
@@ -235,12 +235,12 @@ int main(int argc, char **argv)
 	NotEmpty.Allocate();
 	*NotEmpty = true;
 	
-	(*OpenSet)[(*Grid)[*sx + *sy*MAX_X].Get().UID] = (*Grid)[*sx + *sy*MAX_X];
+	(*OpenSet)[Grid[*sx + *sy*MAX_X].Get().UID] = Grid[*sx + *sy*MAX_X];
 
 	Pointer<Node> Current;
 	Pointer<Node> Goal;
-	Goal = (*Grid)[*gx + *gy*MAX_X];
-	(*fScore)[(*Grid)[*sx + *sy*MAX_X].Get().UID] = EstimateCost((*Grid)[*sx + *sy*MAX_X].Get().UID, Goal.Get().UID);
+	Goal = Grid[*gx + *gy*MAX_X];
+	(*fScore)[Grid[*sx + *sy*MAX_X].Get().UID] = EstimateCost(Grid[*sx + *sy*MAX_X].Get().UID, Goal.Get().UID);
 	while (*NotEmpty) {
 		*NotEmpty = false;
 		for (*x = 0; *x < MAX_X*MAX_Y; ++*x) {
@@ -311,16 +311,16 @@ int main(int argc, char **argv)
 
 	Current = Goal;
 	while (Current) {
-		(*Grid)[Current.Get().UID].Get().path = true;
+		Grid[Current.Get().UID].Get().path = true;
 		Current = (*CameFrom)[Current.Get().UID];
 	}
 
 	//print the grid
 	for (*y = 0; *y < *my; ++*y) {
 		for (*x = 0; *x < *mx; ++*x) {
-			if ((*Grid)[*x + (*y**mx)].Get().path)
+			if (Grid[*x + (*y**mx)].Get().path)
 				printf("O");
-			else if ((*Grid)[*x + (*y**mx)].Get().passable)
+			else if (Grid[*x + (*y**mx)].Get().passable)
 				printf(".");
 			else
 				printf("X");

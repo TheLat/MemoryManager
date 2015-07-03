@@ -139,16 +139,16 @@ template <class T, int N=-1> class Pointer {
 protected:
 	bool destroyed;
 	int index;
-	int size;
+	int length;
 	inline bool IsArray() {
-		return N == -1;
+		return N != -1;
 	}
 	void Set(int i){
 		int* count = CountReferences();
 		if (count != 0) {
 			(*count)--;
 			DestroyContents();
-			mm::get().GC(index, size);
+			mm::get().GC(index, sizeof(T)*length);
 		}
 		index = i;
 		count = CountReferences();
@@ -161,17 +161,24 @@ protected:
 		return index;
 	}
 	int GetSize() const{
-		return size;
+		return sizeof(T)*length;
 	}
 	int* CountReferences(){
-		return (int*)mm::get().GetObject(index, size);
+		return (int*)mm::get().GetObject(index, sizeof(T)*length);
 	}
 	void DestroyContents(){
 		if (destroyed)
 			return;
 		if (IsGood() && CountReferences() && *CountReferences() == mmRefCount(Get())) {
-			mmRecursiveDestroy(Get());
-			mmDestroy(Get());
+			if (!IsArray()) {
+				mmRecursiveDestroy(Get());
+				mmDestroy(Get());
+			}
+			else {
+				for (int i = 0; i < length; ++i) {
+					mmDestroy((*this)[i]);
+				}
+			}
 			destroyed = true;
 		}
 	}
@@ -179,19 +186,49 @@ protected:
 		Set(-1);
 	}
 public:
-	void Grow(int newsize) {
-		static_assert(IsArray(), "Can't grow non-arrays!");
+	void Grow(int newlength) {
+		// TODO:  Clean up condition
+		//static_assert(N != -1, "Can't grow non-arrays!");
+		if (length == newlength)
+			return;
+		int oldindex = index;
+		int oldlength = length;
+		void* oldobj = mm::get().GetObject(oldindex, sizeof(T)*oldlength);
+		index = mm::get().Allocate(sizeof(T)*newlength);
+		length = newlength;
+		void* newobj = mm::get().GetObject(index, sizeof(T)*length);
+		memcpy(newobj, oldobj, (sizeof(T) + sizeof(int))*oldlength);
+		mm::get().Shred(oldindex, sizeof(T)*oldlength);
+		if (oldlength < length) {
+			for (int i = oldlength; i < length; ++i) {
+				mmInitialize((*this)[i]);
+			}
+		}
+		else if (oldlength > length) {
+			for (int i = length; i < oldlength; ++i) {
+				mmDestroy((*this)[i]);
+			}
+		}
 	}
-	void Pack(int newsize) {
-		static_assert(IsArray(), "Can't pack non-arrays!");
-		Grow(newsize);
+	void Pack(int newlength) {
+		// TODO:  Clean up condition
+		//static_assert(N != -1, "Can't pack non-arrays!");
+		Grow(newlength);
+	}
+	T& operator[] (int i){
+		// TODO:  Clean up condition
+		//static_assert(N != -1, "Can't use array access on non-arrays!");
+		return *(((T*)(((int*)(mm::get().GetObject(index, sizeof(T)*length))) + 1)) + i);
 	}
 	Pointer(){
 		Init();
 	}
 	void Init(){
 		index = -1;
-		size = sizeof(T);
+		if (IsArray())
+			length = N;
+		else
+			length = 1;
 	}
 	~Pointer(){
 		Clear();
@@ -200,7 +237,7 @@ public:
 		Set(-1);
 	}
 	bool IsGood(){
-		if (size > 0 && index >= 0)
+		if (sizeof(T)*length > 0 && index >= 0)
 			return true;
 		return false;
 	}
@@ -213,7 +250,7 @@ public:
 		return *this;
 	}
 	bool operator==(const Pointer& param){
-		if (index == param.GetIndex() && size == param.GetSize())
+		if (index == param.GetIndex() && sizeof(T)*length == param.GetSize())
 			return true;
 		return false;
 	}
@@ -221,22 +258,32 @@ public:
 		return (IsGood());
 	}
 	void Allocate(){
-		Set(mm::get().Allocate(size));
+		int j = sizeof(T);
+		Set(mm::get().Allocate(sizeof(T)*length));
 		if (IsGood()) {
-			T* t = &Get();
-			mmInitialize<T>(*t);
-			mmRecursiveInitialize(*t);
-			destroyed = false;
+			if (!IsArray()) {
+				T* t = &(*this);
+				mmInitialize<T>(*t);
+				mmRecursiveInitialize(*t);
+				destroyed = false;
+			}
+			else {
+				for (int i = 0; i < length; ++i) {
+					mmInitialize<T>((*this)[i]);
+					mmRecursiveInitialize((*this)[i]);
+					destroyed = false;
+				}
+			}
 		}
 	}
 	T& operator* (){
-		return *((T*)(((int*)(mm::get().GetObject(index, size))) + 1));
+		return *((T*)(((int*)(mm::get().GetObject(index, sizeof(T)*length))) + 1));
 	}
 	T* operator& (){
-		return ((T*)(((int*)(mm::get().GetObject(index, size))) + 1));
+		return ((T*)(((int*)(mm::get().GetObject(index, sizeof(T)*length))) + 1));
 	}
 	T& Get(){
-		return *((T*)(((int*)(mm::get().GetObject(index, size))) + 1));
+		return *((T*)(((int*)(mm::get().GetObject(index, sizeof(T)*length))) + 1));
 	}
 };
 
@@ -354,6 +401,10 @@ private:
 		if (tables[size] == 0)
 			return 0;
 		return (void*)&tables[size][index*(size + sizeof(int))];
+	}
+	void Shred(int index, int size) {
+		memset((void*)&tables[size][index*(size + sizeof(int))], 0, size + sizeof(int));
+		GC(index, size);
 	}
 	void GC(int index, int size) {
 		if (size >= 4) {
