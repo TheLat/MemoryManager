@@ -193,9 +193,9 @@ public:
 	void Peek() {
 		obj = &(*this);
 	}
-	void Grow(int newlength) {
+	void Resize(int newlength) {
 		// TODO:  Clean up condition
-		//static_assert(N != -1, "Can't grow non-arrays!");
+		static_assert(N != -1, "Can't grow non-arrays!");
 		if (length == newlength)
 			return;
 		int oldindex = index;
@@ -219,6 +219,7 @@ public:
 	}
 	T& operator[] (int i){
 		// TODO:  Clean up condition
+		// TODO:  This is failing to compile.  Figure out why.
 		//static_assert(N != -1, "Can't use array access on non-arrays!");
 		return *(((T*)(((int*)(mm::get().GetObject(index, sizeof(T)*length))) + 1)) + i);
 	}

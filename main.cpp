@@ -166,7 +166,7 @@ int main(int argc, char **argv)
 
 	Pointer<Pointer<Node>, 1> Grid;
 	Grid.Allocate();
-	Grid.Grow(MAX_X*MAX_Y);
+	Grid.Resize(MAX_X*MAX_Y);
 	Pointer<int> x, y;
 	x.Allocate();
 	y.Allocate();
