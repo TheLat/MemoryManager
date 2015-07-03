@@ -84,7 +84,7 @@ Returns the length of the array if the pointer is to a dynamic array or 1 if it 
 ```
 void Resize(int newlength)
 ```
-If the object is a dynamic array, this will change the array to the new size.  If newlength is greater than the old length, it will call Init() on all new objects in the array, if they have an Init function.  If it is less than the old length, it will call Destroy() on all of the lost objects, if they have a Destroy function.  If the Pointer has not been allocated, this function will allocate it.
+If the object is a dynamic array, this will change the array to the new size.  If newlength is greater than the old length, it will call Init() on all new objects in the array, if they have an Init function.  If it is less than the old length, it will call Destroy() on all of the lost objects, if they have a Destroy function.  If the Pointer has not been allocated and the new size is greater than 0, this function will allocate it.  If the size is 0, this will destroy the object in the same way that it falling out of scope would.
 #### Statistics Logging
 The memory manager will save its statistics to "Memory Stats.txt" in the folder that it is run in.  This is provided in plain text, human-readable format and tells both the largest levels of memory used and memory that the memory manager detects as being un-freed.  This is done by scanning through the reference counts of all memory allocated.
 
