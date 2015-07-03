@@ -187,6 +187,9 @@ protected:
 		Set(-1);
 	}
 public:
+	int Size() {
+		return length;
+	}
 	void Peek() {
 		obj = &(*this);
 	}
@@ -213,11 +216,6 @@ public:
 				mmDestroy((*this)[i]);
 			}
 		}
-	}
-	void Pack(int newlength) {
-		// TODO:  Clean up condition
-		//static_assert(N != -1, "Can't pack non-arrays!");
-		Grow(newlength);
 	}
 	T& operator[] (int i){
 		// TODO:  Clean up condition
