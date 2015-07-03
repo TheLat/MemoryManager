@@ -177,7 +177,6 @@ int main(int argc, char **argv)
 			*UID = *UID + 1;
 		}
 	}
-
 	for (*y = 0; *y < *my; ++*y) {
 		for (*x = 0; *x < *mx; ++*x) {
 			if ((*x == 0) || (*y == 0) || (*x >= *mx - 1) || (*y >= *my - 1)){

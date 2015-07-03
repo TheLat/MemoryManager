@@ -140,6 +140,7 @@ protected:
 	bool destroyed;
 	int index;
 	int length;
+	T* obj;
 	inline bool IsArray() {
 		return N != -1;
 	}
@@ -186,6 +187,9 @@ protected:
 		Set(-1);
 	}
 public:
+	void Peek() {
+		obj = &(*this);
+	}
 	void Grow(int newlength) {
 		// TODO:  Clean up condition
 		//static_assert(N != -1, "Can't grow non-arrays!");
