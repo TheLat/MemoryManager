@@ -164,6 +164,9 @@ protected:
 	int GetSize() const{
 		return sizeof(T)*length;
 	}
+	int GetLength() const{
+		return length;
+	}
 	int* CountReferences(){
 		return (int*)mm::get().GetObject(index, sizeof(T)*length);
 	}
@@ -259,6 +262,7 @@ public:
 	Pointer& operator=(const Pointer& param){
 		if (this == &param)
 			return *this;
+		length = param.GetLength();
 		Set(param.GetIndex());
 		if (IsGood())
 			destroyed = false;

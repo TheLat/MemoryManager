@@ -70,17 +70,21 @@ Equivalent to the * operator.
 #### Dynamic Arrays:
 Dynamic arrays can be declared like this:
 ```
-Pointer<object, 1> Variable;
+Pointer<object, 0> Variable;
 ```
-You can replace the number with any number, though must be a constant and must be positive.  This number will be the initial size of the array.  If this number is 0, it will be treated as a null pointer and can't be allocated.
+You can replace the number with any number, though must be a constant and must be positive.  This number will be the initial size of the array.  If this number is 0, it will be treated as a null pointer and can't be allocated.  TODO:  There are currently issues with dynamic array Pointers being set to equal other dynamic array pointers with different starting sizes.
 ```
 T& operator[] (int i)
 ```
 If an object is a dynamic array, this will return the ith element of the array.
 ```
-int Size()
+int GetLength()
 ```
 Returns the length of the array if the pointer is to a dynamic array or 1 if it is not.
+```
+int GetSize()
+```
+Returns the size of the object that the Pointer pointers to.  This comes out to the sizeof whatever the Pointer is templated to, time the length if it is a dynamic array, in bytes.
 ```
 void Resize(int newlength)
 ```
