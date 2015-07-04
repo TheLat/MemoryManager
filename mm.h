@@ -133,7 +133,8 @@ template<typename T, int size> void mmRecursiveDestroy(T(&val)[size]){
 }
 template<typename T> void mmRecursiveDestroy(T(&)){
 }
-
+#pragma pack(push)
+#pragma pack(1)
 template <class T, int N=-1> class Pointer {
 	friend class Pointer < T >;
 protected:
@@ -464,3 +465,4 @@ public:
 		return instance;
 	}
 };
+#pragma pack(pop)
