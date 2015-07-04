@@ -158,7 +158,7 @@ protected:
 			destroyed = false;
 		}
 	}
-	int GetIndex() const{
+	const int& GetIndex() const{
 		return index;
 	}
 	int* CountReferences(){
@@ -184,10 +184,10 @@ protected:
 		Set(-1);
 	}
 public:
-	const int Length() const{
+	const int& Length() const{
 		return length;
 	}
-	const int Size() const{
+	const int& Size() const{
 		return sizeof(T)*length;
 	}
 	void Peek() {
