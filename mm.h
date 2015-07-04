@@ -161,12 +161,6 @@ protected:
 	int GetIndex() const{
 		return index;
 	}
-	int GetSize() const{
-		return sizeof(T)*length;
-	}
-	int GetLength() const{
-		return length;
-	}
 	int* CountReferences(){
 		return (int*)mm::get().GetObject(index, sizeof(T)*length);
 	}
@@ -190,8 +184,11 @@ protected:
 		Set(-1);
 	}
 public:
-	int Size() {
+	const int Length() const{
 		return length;
+	}
+	const int Size() const{
+		return sizeof(T)*length;
 	}
 	void Peek() {
 		obj = &(*this);
@@ -262,14 +259,14 @@ public:
 	Pointer& operator=(const Pointer& param){
 		if (this == &param)
 			return *this;
-		length = param.GetLength();
+		length = param.Length();
 		Set(param.GetIndex());
 		if (IsGood())
 			destroyed = false;
 		return *this;
 	}
 	bool operator==(const Pointer& param){
-		if (index == param.GetIndex() && sizeof(T)*length == param.GetSize())
+		if (index == param.GetIndex() && sizeof(T)*length == param.Size())
 			return true;
 		return false;
 	}

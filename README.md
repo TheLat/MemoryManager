@@ -78,11 +78,11 @@ T& operator[] (int i)
 ```
 If an object is a dynamic array, this will return the ith element of the array.
 ```
-int GetLength()
+int Length()
 ```
 Returns the length of the array if the pointer is to a dynamic array or 1 if it is not.
 ```
-int GetSize()
+int Size()
 ```
 Returns the size of the object that the Pointer pointers to.  This comes out to the sizeof whatever the Pointer is templated to, time the length if it is a dynamic array, in bytes.
 ```
