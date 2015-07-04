@@ -67,12 +67,16 @@ Using the reference operator will give you the actual memory address of the obje
 T& Get()
 ```
 Equivalent to the * operator.
+```
+void Peek()
+```
+Pointers do not know the actual memory address of the object they point to.  As such, this makes debugging very difficult.  To remedy this, Pointers have an protected variable called "obj" which is an actual pointer of the template of the Pointer class.  Calling Peek will set obj to be the actual memory address of the object.  This is only to be used for debugging purposes.
 #### Dynamic Arrays:
 Dynamic arrays can be declared like this:
 ```
 Pointer<object, 0> Variable;
 ```
-You can replace the number with any number, though must be a constant and must be positive.  This number will be the initial size of the array.  If this number is 0, it will be treated as a null pointer and can't be allocated.  TODO:  There are currently issues with dynamic array Pointers being set to equal other dynamic array pointers with different starting sizes.
+You can replace the number with any number, though must be a constant and must be positive.  This number will be the initial size of the array.  If this number is 0, it will be treated as a null pointer and can't be allocated.  TODO:  There are currently issues with dynamic array Pointers being set to equal other dynamic array pointers with different starting sizes.  Until this is resolved, it is recommended to set all Pointers to dynamic arrays to have a starting size of 0.
 ```
 T& operator[] (int i)
 ```
