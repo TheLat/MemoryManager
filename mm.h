@@ -193,6 +193,9 @@ public:
 	void Peek() {
 		obj = &(*this);
 	}
+	Pointer(const Pointer& obj) {
+		*this = obj;
+	}
 	void Resize(int newlength) {
 		// TODO:  Clean up condition
 		static_assert(N != -1, "Can't grow non-arrays!");

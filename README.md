@@ -13,6 +13,7 @@ I am writing a memory manager to make life easier in C++.  The goal is to create
 * Detects And Frees Arbitrary Graphs With No External References:  Yes, see RefCount
 * Debugging-friendly:  Yes
 * Handles Dynamic Arrays Of Length Zero:  Yes
+* Ability To Pack Tables To Smallest Possible Length:  **No**
 * Ability To Start Tables At Previous Maximum Load:  **No**
 * Threadsafe: **No**
 
@@ -71,6 +72,10 @@ Equivalent to the * operator.
 void Peek()
 ```
 Pointers do not know the actual memory address of the object they point to.  As such, this makes debugging very difficult.  To remedy this, Pointers have an protected variable called "obj" which is an actual pointer of the template of the Pointer class.  Calling Peek will set obj to be the actual memory address of the object.  This is only to be used for debugging purposes.
+```
+Pointer(const Pointer& obj)
+```
+The copy constructor exists and is very efficient.  However, passing by reference or constant reference is usually preferrable.
 #### Dynamic Arrays:
 Dynamic arrays can be declared like this:
 ```
