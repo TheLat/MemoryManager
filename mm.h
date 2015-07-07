@@ -184,16 +184,37 @@ protected:
 		Set(-1);
 	}
 	void SetLength(int NewLength) {
+		if (N != -1) {
+			int* count = (int*)mm::get().GetObject(index, Size());
+			if (count) {
+				count++;
+				*count = NewLength;
+			}
+		}
 		len = NewLength;
 	}
 public:
-	const int& Length() const{
+	int Length(){
 		return len;
 	}
-	const int Size() const{
+	int Size(){
 		if (N == -1)
 			return sizeof(T);
-		return (sizeof(T))*Length() + sizeof(int);
+		int* l;
+		int temp;
+		l = (int*)mm::get().GetObject(index, sizeof(T)*len + sizeof(int));
+		if (l && *l) {
+			while (l && len != *(l + 1)) {
+				temp = *(l + 1);
+				if (*l == 1) {
+					mm::get().Shred(index, sizeof(T)*len + sizeof(int));
+				}
+				len = temp;
+				l = (int*)mm::get().GetObject(index, sizeof(T)*len + sizeof(int));
+			}
+		}
+
+		return sizeof(T)*Length() + sizeof(int);
 	}
 	void Peek() {
 		obj = &(*this);
@@ -204,10 +225,12 @@ public:
 	void Resize(int newlength) {
 		// TODO:  Clean up condition
 		static_assert(N != -1, "Can't grow non-arrays!");
+		IsGood();
 		if (Length() == newlength)
 			return;
 		int oldindex = index;
 		int oldlength = Length();
+		int* oldcount = CountReferences();
 		void* oldobj = mm::get().GetObject(oldindex, Size());
 		if (oldlength > newlength) {
 			for (int i = newlength; i < oldlength; ++i) {
@@ -216,9 +239,15 @@ public:
 		}
 		SetLength(newlength);
 		index = mm::get().Allocate((sizeof(T))*newlength + sizeof(int)); // Unfortunate special-case behavior
+		SetLength(newlength);
 		void* newobj = mm::get().GetObject(index, Size());
 		memcpy(newobj, oldobj, oldlength < Length() ? (sizeof(T) + sizeof(int))*oldlength : (sizeof(T) + sizeof(int))*Length());
-		mm::get().Shred(oldindex, sizeof(T)*oldlength);
+		if (oldcount) {
+			--*oldcount;
+			if (*oldcount == 0) {
+				mm::get().Shred(oldindex, sizeof(T)*oldlength + sizeof(int));
+			}
+		}
 		if (oldlength < Length()) {
 			for (int i = oldlength; i < Length(); ++i) {
 				mmInitialize((*this)[i]);
@@ -252,13 +281,13 @@ public:
 	void Destroy(){
 		Set(-1);
 	}
-	bool IsGood() const{
+	bool IsGood(){
 		if (index >= 0 && Size() > 0)
 			return true;
 		return false;
 	}
-	Pointer& operator=(const Pointer& param){
-		if (this == &param)
+	Pointer& operator=(Pointer& param){
+		if (*this == param)
 			return *this;
 		SetLength(param.Length());
 		Set(param.GetIndex());
@@ -266,7 +295,7 @@ public:
 			destroyed = false;
 		return *this;
 	}
-	bool operator==(const Pointer& param){
+	bool operator==(Pointer& param){
 		if (index == param.GetIndex() && Size() == param.Size())
 			return true;
 		return false;
