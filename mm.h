@@ -149,7 +149,7 @@ protected:
 		if (count != 0) {
 			(*count)--;
 			DestroyContents();
-			mm::get().GC(index, sizeof(T)*length);
+			mm::get().GC(index, Size());
 		}
 		index = i;
 		count = CountReferences();
@@ -162,7 +162,7 @@ protected:
 		return index;
 	}
 	int* CountReferences(){
-		return (int*)mm::get().GetObject(index, sizeof(T)*length);
+		return (int*)mm::get().GetObject(index, Size());
 	}
 	void DestroyContents(){
 		if (destroyed)
@@ -203,15 +203,15 @@ public:
 			return;
 		int oldindex = index;
 		int oldlength = length;
-		void* oldobj = mm::get().GetObject(oldindex, sizeof(T)*oldlength);
+		void* oldobj = mm::get().GetObject(oldindex, Size());
 		if (oldlength > newlength) {
 			for (int i = newlength; i < oldlength; ++i) {
 				mmDestroy((*this)[i]);
 			}
 		}
-		index = mm::get().Allocate(sizeof(T)*newlength);
 		length = newlength;
-		void* newobj = mm::get().GetObject(index, sizeof(T)*length);
+		index = mm::get().Allocate(Size());
+		void* newobj = mm::get().GetObject(index, Size());
 		memcpy(newobj, oldobj, oldlength < length ? (sizeof(T) + sizeof(int))*oldlength : (sizeof(T) + sizeof(int))*length);
 		mm::get().Shred(oldindex, sizeof(T)*oldlength);
 		if (oldlength < length) {
@@ -235,7 +235,7 @@ public:
 		// TODO:  Clean up condition
 		// TODO:  This is failing to compile.  Figure out why.
 		//static_assert(N != -1, "Can't use array access on non-arrays!");
-		return *(((T*)(((int*)(mm::get().GetObject(index, sizeof(T)*length))) + 1)) + i);
+		return *(((T*)(((int*)(mm::get().GetObject(index, Size()))) + 1)) + i);
 	}
 	Pointer(){
 		Init();
@@ -248,14 +248,13 @@ public:
 			length = 1;
 	}
 	~Pointer(){
-		int k = sizeof(T);
 		Clear();
 	}
 	void Destroy(){
 		Set(-1);
 	}
 	bool IsGood(){
-		if (sizeof(T)*length > 0 && index >= 0)
+		if (Size() > 0 && index >= 0)
 			return true;
 		return false;
 	}
@@ -269,7 +268,7 @@ public:
 		return *this;
 	}
 	bool operator==(const Pointer& param){
-		if (index == param.GetIndex() && sizeof(T)*length == param.Size())
+		if (index == param.GetIndex() && Size() == param.Size())
 			return true;
 		return false;
 	}
@@ -277,7 +276,7 @@ public:
 		return (IsGood());
 	}
 	void Allocate(){
-		Set(mm::get().Allocate(sizeof(T)*length));
+		Set(mm::get().Allocate(Size()));
 		if (IsGood()) {
 			if (!IsArray()) {
 				T* t = &(*this);
@@ -295,13 +294,13 @@ public:
 		}
 	}
 	T& operator* (){
-		return *((T*)(((int*)(mm::get().GetObject(index, sizeof(T)*length))) + 1));
+		return *((T*)(((int*)(mm::get().GetObject(index, Size()))) + 1));
 	}
 	T* operator& (){
-		return ((T*)(((int*)(mm::get().GetObject(index, sizeof(T)*length))) + 1));
+		return ((T*)(((int*)(mm::get().GetObject(index, Size()))) + 1));
 	}
 	T& Get(){
-		return *((T*)(((int*)(mm::get().GetObject(index, sizeof(T)*length))) + 1));
+		return *((T*)(((int*)(mm::get().GetObject(index, Size()))) + 1));
 	}
 };
 
