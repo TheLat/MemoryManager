@@ -218,7 +218,7 @@ public:
 		index = mm::get().Allocate((sizeof(T))*newlength + sizeof(int)); // Unfortunate special-case behavior
 		void* newobj = mm::get().GetObject(index, Size());
 		memcpy(newobj, oldobj, oldlength < Length() ? (sizeof(T) + sizeof(int))*oldlength : (sizeof(T) + sizeof(int))*Length());
-		mm::get().Shred(oldindex, sizeof(T)*oldlength);
+		mm::get().Shred(oldindex, sizeof(T)*oldlength + sizeof(int));
 		if (oldlength < Length()) {
 			for (int i = oldlength; i < Length(); ++i) {
 				mmInitialize((*this)[i]);
