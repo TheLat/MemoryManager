@@ -139,7 +139,7 @@ template <class T, int N=-1> class Pointer {
 protected:
 	bool destroyed;
 	int index;
-	int length;
+	int len;
 	T* obj;
 	inline bool IsArray() {
 		return N != -1;
@@ -173,7 +173,7 @@ protected:
 				mmDestroy(Get());
 			}
 			else {
-				for (int i = 0; i < length; ++i) {
+				for (int i = 0; i < Length(); ++i) {
 					mmDestroy((*this)[i]);
 				}
 			}
@@ -183,12 +183,15 @@ protected:
 	void Clear(){
 		Set(-1);
 	}
+	void SetLength(int NewLength) {
+		len = NewLength;
+	}
 public:
 	const int& Length() const{
-		return length;
+		return len;
 	}
 	const int& Size() const{
-		return sizeof(T)*length;
+		return sizeof(T)*Length();
 	}
 	void Peek() {
 		obj = &(*this);
@@ -199,23 +202,23 @@ public:
 	void Resize(int newlength) {
 		// TODO:  Clean up condition
 		static_assert(N != -1, "Can't grow non-arrays!");
-		if (length == newlength)
+		if (Length() == newlength)
 			return;
 		int oldindex = index;
-		int oldlength = length;
+		int oldlength = Length();
 		void* oldobj = mm::get().GetObject(oldindex, Size());
 		if (oldlength > newlength) {
 			for (int i = newlength; i < oldlength; ++i) {
 				mmDestroy((*this)[i]);
 			}
 		}
-		length = newlength;
+		SetLength(newlength);
 		index = mm::get().Allocate(Size());
 		void* newobj = mm::get().GetObject(index, Size());
-		memcpy(newobj, oldobj, oldlength < length ? (sizeof(T) + sizeof(int))*oldlength : (sizeof(T) + sizeof(int))*length);
+		memcpy(newobj, oldobj, oldlength < Length() ? (sizeof(T) + sizeof(int))*oldlength : (sizeof(T) + sizeof(int))*Length());
 		mm::get().Shred(oldindex, sizeof(T)*oldlength);
-		if (oldlength < length) {
-			for (int i = oldlength; i < length; ++i) {
+		if (oldlength < Length()) {
+			for (int i = oldlength; i < Length(); ++i) {
 				mmInitialize((*this)[i]);
 			}
 		}
@@ -224,7 +227,7 @@ public:
 			if (count)
 				(*count)++;
 		}
-		if (length > 0) {
+		if (Length() > 0) {
 			destroyed = false;
 		}
 		else {
@@ -243,9 +246,9 @@ public:
 	void Init(){
 		index = -1;
 		if (IsArray())
-			length = N;
+			SetLength(N);
 		else
-			length = 1;
+			SetLength(1);
 	}
 	~Pointer(){
 		Clear();
@@ -261,7 +264,7 @@ public:
 	Pointer& operator=(const Pointer& param){
 		if (this == &param)
 			return *this;
-		length = param.Length();
+		SetLength(param.Length());
 		Set(param.GetIndex());
 		if (IsGood())
 			destroyed = false;
@@ -285,7 +288,7 @@ public:
 				destroyed = false;
 			}
 			else {
-				for (int i = 0; i < length; ++i) {
+				for (int i = 0; i < Length(); ++i) {
 					mmInitialize<T>((*this)[i]);
 					mmRecursiveInitialize((*this)[i]);
 					destroyed = false;
