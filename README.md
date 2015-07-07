@@ -12,7 +12,7 @@ I am writing a memory manager to make life easier in C++.  The goal is to create
 * Handles Pointers To Dynamic Arrays:  Yes
 * Detects And Frees Arbitrary Graphs With No External References:  Yes, see RefCount
 * Debugging-friendly:  Yes
-* Handles Dynamic Arrays Of Length Zero:  **Mostly Yes**  Does not correctly resolve resizing one dynamic array while another Pointer points to the same dynamic array.
+* Handles Dynamic Arrays Of Length Zero:  **Mostly Yes.**  Does not correctly resolve resizing one dynamic array while another Pointer points to the same dynamic array.
 * Ability To Pack Tables To Smallest Possible Length:  **No**
 * Ability To Start Tables At Previous Maximum Load:  **No**
 * Threadsafe: **No**
