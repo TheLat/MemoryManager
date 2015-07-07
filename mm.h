@@ -257,7 +257,7 @@ public:
 		Set(-1);
 	}
 	bool IsGood(){
-		if (Size() > 0 && index >= 0)
+		if (index >= 0 && Size() > 0)
 			return true;
 		return false;
 	}
