@@ -12,7 +12,7 @@ I am writing a memory manager to make life easier in C++.  The goal is to create
 * Handles Pointers To Dynamic Arrays:  Yes
 * Detects And Frees Arbitrary Graphs With No External References:  Yes, see RefCount
 * Debugging-friendly:  Yes
-* Handles Dynamic Arrays Of Length Zero:  **Mostly Yes.**  Does not correctly resolve resizing one dynamic array while another Pointer points to the same dynamic array.
+* Handles Dynamic Arrays Of Length Zero:  Yes
 * Ability To Pack Tables To Smallest Possible Length:  **No**
 * Ability To Start Tables At Previous Maximum Load:  **No**
 * Threadsafe: **No**
@@ -97,7 +97,7 @@ Returns the size of the object that the Pointer pointers to.  This comes out to 
 ```
 void Resize(int newlength)
 ```
-If the object is a dynamic array, this will change the array to the new size.  If newlength is greater than the old length, it will call Init() on all new objects in the array, if they have an Init function.  If it is less than the old length, it will call Destroy() on all of the lost objects, if they have a Destroy function.  If the Pointer has not been allocated and the new size is greater than 0, this function will allocate it.  If the size is 0, this will destroy the object in the same way that it falling out of scope would.
+If the object is a dynamic array, this will change the array to the new size.  If newlength is greater than the old length, it will call Init() on all new objects in the array, if they have an Init function.  If it is less than the old length, it will call Destroy() on all of the lost objects, if they have a Destroy function.  If the Pointer has not been allocated and the new size is greater than 0, this function will allocate it.  If the size is 0, this will destroy the object in the same way that it falling out of scope would.  Unlike normal Pointer behavior, where you have to keep track of every single pointer, if you have 2 Pointers to the same dynamic array and resize one, the other will know about it.  This is accomplished by leaving a trail of breadcrumbs in memory objects and cleaning up as appropriate.  This is in line with the philosophy of making C++ coding easier.  Following the trail of breadcrumbs is triggered by getting the data that the Pointer is pointing to.
 #### Statistics Logging
 The memory manager will save its statistics to "Memory Stats.txt" in the folder that it is run in.  This is provided in plain text, human-readable format and tells both the largest levels of memory used and memory that the memory manager detects as being un-freed.  This is done by scanning through the reference counts of all memory allocated.
 

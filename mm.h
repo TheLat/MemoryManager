@@ -186,6 +186,20 @@ protected:
 	void SetLength(int NewLength) {
 		len = NewLength;
 	}
+	void FollowTrail() {
+		int* count = CountReferences();
+		while (*(count + 1) != Length() || *(count + 2) != index) {
+			int newlen = *(count + 1);
+			int newindex = *(count + 2);
+			--*count;
+			if (*count == 0) {
+				mm::get().Shred(index, sizeof(T)*Length() + 2 * sizeof(int));
+			}
+			SetLength(newlen);
+			index = newindex;
+			count = CountReferences();
+		}
+	}
 public:
 	const int& Length() const{
 		return len;
@@ -193,7 +207,7 @@ public:
 	const int Size() const{
 		if (N == -1)
 			return sizeof(T);
-		return (sizeof(T))*Length() + sizeof(int);
+		return (sizeof(T))*Length() + 2*sizeof(int);
 	}
 	void Peek() {
 		obj = &(*this);
@@ -215,10 +229,22 @@ public:
 			}
 		}
 		SetLength(newlength);
-		index = mm::get().Allocate((sizeof(T))*newlength + sizeof(int)); // Unfortunate special-case behavior
+		index = mm::get().Allocate((sizeof(T))*newlength + 2*sizeof(int)); // Unfortunate special-case behavior
 		void* newobj = mm::get().GetObject(index, Size());
-		memcpy(newobj, oldobj, oldlength < Length() ? (sizeof(T) + sizeof(int))*oldlength : (sizeof(T) + sizeof(int))*Length());
-		mm::get().Shred(oldindex, sizeof(T)*oldlength + sizeof(int));
+		if (oldobj && newobj)
+			memcpy(newobj, oldobj, oldlength < Length() ? (sizeof(T)*oldlength + 2 * sizeof(int)) : (sizeof(T)*Length() + 2*sizeof(int)));
+		if (oldobj && *((int*)oldobj) == 1)
+			mm::get().Shred(oldindex, sizeof(T)*oldlength + 2*sizeof(int));
+		else if (oldobj) {
+			--*((int*)oldobj);
+			//leave breadcrumb trail
+			*(((int*)oldobj) + 1) = Length();
+			*(((int*)oldobj) + 2) = index;
+		}
+		if (newobj) {
+			*(((int*)newobj) + 1) = Length();
+			*(((int*)newobj) + 2) = index;
+		}
 		if (oldlength < Length()) {
 			for (int i = oldlength; i < Length(); ++i) {
 				mmInitialize((*this)[i]);
@@ -293,13 +319,19 @@ public:
 		}
 	}
 	T& operator* (){
-		return *((T*)(((int*)(mm::get().GetObject(index, Size()))) + (N != -1 ? 2 : 1)));
+		if (IsArray())
+			FollowTrail();
+		return *((T*)(((int*)(mm::get().GetObject(index, Size()))) + (N != -1 ? 3 : 1)));
 	}
 	T* operator& (){
-		return ((T*)(((int*)(mm::get().GetObject(index, Size()))) + (N != -1 ? 2 : 1)));
+		if (IsArray())
+			FollowTrail();
+		return ((T*)(((int*)(mm::get().GetObject(index, Size()))) + (N != -1 ? 3 : 1)));
 	}
 	T& Get(){
-		return *((T*)(((int*)(mm::get().GetObject(index, Size()))) + (N != -1 ? 2 : 1)));
+		if (IsArray())
+			FollowTrail();
+		return *((T*)(((int*)(mm::get().GetObject(index, Size()))) + (N != -1 ? 3 : 1)));
 	}
 	T& operator[] (int i){
 		// TODO:  Clean up condition
