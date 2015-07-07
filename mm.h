@@ -188,7 +188,7 @@ protected:
 	}
 	void FollowTrail() {
 		int* count = CountReferences();
-		while (*(count + 1) != Length() || *(count + 2) != index) {
+		while (count && (*(count + 1) != Length() || *(count + 2) != index)) {
 			int newlen = *(count + 1);
 			int newindex = *(count + 2);
 			--*count;
@@ -218,6 +218,7 @@ public:
 	void Resize(int newlength) {
 		// TODO:  Clean up condition
 		static_assert(N != -1, "Can't grow non-arrays!");
+		FollowTrail();
 		if (Length() == newlength)
 			return;
 		int oldindex = index;
@@ -276,6 +277,8 @@ public:
 		Clear();
 	}
 	void Destroy(){
+		if (IsArray())
+			FollowTrail();
 		Set(-1);
 	}
 	bool IsGood() const{
