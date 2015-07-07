@@ -190,8 +190,10 @@ public:
 	const int& Length() const{
 		return len;
 	}
-	const int& Size() const{
-		return sizeof(T)*Length();
+	const int Size() const{
+		if (N == -1)
+			return sizeof(T);
+		return (sizeof(T))*Length() + sizeof(int);
 	}
 	void Peek() {
 		obj = &(*this);
@@ -213,7 +215,7 @@ public:
 			}
 		}
 		SetLength(newlength);
-		index = mm::get().Allocate(Size());
+		index = mm::get().Allocate((sizeof(T))*newlength + sizeof(int)); // Unfortunate special-case behavior
 		void* newobj = mm::get().GetObject(index, Size());
 		memcpy(newobj, oldobj, oldlength < Length() ? (sizeof(T) + sizeof(int))*oldlength : (sizeof(T) + sizeof(int))*Length());
 		mm::get().Shred(oldindex, sizeof(T)*oldlength);
@@ -256,7 +258,7 @@ public:
 	void Destroy(){
 		Set(-1);
 	}
-	bool IsGood(){
+	bool IsGood() const{
 		if (index >= 0 && Size() > 0)
 			return true;
 		return false;
@@ -297,13 +299,13 @@ public:
 		}
 	}
 	T& operator* (){
-		return *((T*)(((int*)(mm::get().GetObject(index, Size()))) + 1));
+		return *((T*)(((int*)(mm::get().GetObject(index, Size()))) + (N != -1 ? 2 : 1)));
 	}
 	T* operator& (){
-		return ((T*)(((int*)(mm::get().GetObject(index, Size()))) + 1));
+		return ((T*)(((int*)(mm::get().GetObject(index, Size()))) + (N != -1 ? 2 : 1)));
 	}
 	T& Get(){
-		return *((T*)(((int*)(mm::get().GetObject(index, Size()))) + 1));
+		return *((T*)(((int*)(mm::get().GetObject(index, Size()))) + (N != -1 ? 2 : 1)));
 	}
 };
 
