@@ -236,12 +236,6 @@ public:
 			destroyed = true;
 		}
 	}
-	T& operator[] (int i){
-		// TODO:  Clean up condition
-		// TODO:  This is failing to compile.  Figure out why.
-		//static_assert(N != -1, "Can't use array access on non-arrays!");
-		return *(((T*)(((int*)(mm::get().GetObject(index, Size()))) + 1)) + i);
-	}
 	Pointer(){
 		Init();
 	}
@@ -306,6 +300,12 @@ public:
 	}
 	T& Get(){
 		return *((T*)(((int*)(mm::get().GetObject(index, Size()))) + (N != -1 ? 2 : 1)));
+	}
+	T& operator[] (int i){
+		// TODO:  Clean up condition
+		// TODO:  This is failing to compile.  Figure out why.
+		//static_assert(N != -1, "Can't use array access on non-arrays!");
+		return *(((T*)(&*this)) + i);
 	}
 };
 
