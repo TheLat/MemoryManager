@@ -14,7 +14,7 @@ I am writing a memory manager to make life easier in C++.  The goal is to create
 * Debugging-friendly:  Yes
 * Handles Dynamic Arrays Of Length Zero:  Yes
 * Dynamic Array Resizing Updates Other Pointers To The Same Dynamic Array:  Yes
-* Ability To Pack Tables To Smallest Possible Length:  **No**
+* Ability To Pack Tables To Smallest Possible Length:  Yes
 * Ability To Start Tables At Previous Maximum Load:  **No**
 * Threadsafe: **No**
 
