@@ -149,7 +149,6 @@ protected:
 		if (count != 0) {
 			(*count)--;
 			DestroyContents();
-			mm::get().GC(index, Size());
 		}
 		index = i;
 		count = CountReferences();
@@ -178,6 +177,7 @@ protected:
 				}
 			}
 			destroyed = true;
+			mm::get().GC(index, Size());
 		}
 	}
 	void Clear(){
