@@ -38,6 +38,15 @@ struct hasInit
 	static void Call_Optional(T & t) {
 		Call_Optional(t, type());
 	}
+	static bool Has_Optional(T & t, std::true_type) {
+		return true;
+	}
+	static bool Has_Optional(...){
+		return false;
+	}
+	static bool Has_Optional(T & t) {
+		return Has_Optional(t, type());
+	}
 };
 
 
@@ -68,6 +77,15 @@ struct hasDestroy
 	}
 	static void Call_Optional(T & t) {
 		Call_Optional(t, type());
+	}
+	static bool Has_Optional(T & t, std::true_type) {
+		return true;
+	}
+	static bool Has_Optional(...){
+		return false;
+	}
+	static bool Has_Optional(T & t) {
+		return Has_Optional(t, type());
 	}
 };
 
@@ -101,6 +119,15 @@ struct hasRefCount
 	static int Call_Optional(T & t) {
 		return Call_Optional(t, type());
 	}
+	static bool Has_Optional(T & t, std::true_type) {
+		return true;
+	}
+	static bool Has_Optional(...){
+		return false;
+	}
+	static bool Has_Optional(T & t) {
+		return Has_Optional(t, type());
+	}
 };
 
 template<class T>
@@ -120,15 +147,19 @@ int mmRefCount(T & val) {
 
 
 template<typename T, int size> void mmRecursiveInitialize(T(&val)[size]){
-	for (int i = 0; i < size; ++i) {
-		mmInitialize(val[i]);
+	if (size > 0 && hasInit<T>::Has_Optional(val[0])) {
+		for (int i = 0; i < size; ++i) {
+			mmInitialize(val[i]);
+		}
 	}
 }
 template<typename T> void mmRecursiveInitialize(T(&)){
 }
 template<typename T, int size> void mmRecursiveDestroy(T(&val)[size]){
-	for (int i = 0; i < size; ++i) {
-		mmDestroy(val[i]);
+	if (size > 0 && hasDestroy<T>::Has_Optional(val[0])) {
+		for (int i = 0; i < size; ++i) {
+			mmDestroy(val[i]);
+		}
 	}
 }
 template<typename T> void mmRecursiveDestroy(T(&)){
@@ -141,7 +172,7 @@ protected:
 	int index;
 	int len;
 	T* obj;
-	inline bool IsArray() {
+	bool IsArray() {
 		return N != -1;
 	}
 	void Set(int i){
@@ -172,8 +203,10 @@ protected:
 				mmDestroy(Get());
 			}
 			else {
-				for (int i = 0; i < Length(); ++i) {
-					mmDestroy((*this)[i]);
+				if (hasDestroy<T>::Has_Optional((*this)[0])) {
+					for (int i = 0; i < Length(); ++i) {
+						mmDestroy((*this)[i]);
+					}
 				}
 			}
 			destroyed = true;
@@ -225,13 +258,15 @@ public:
 		int oldlength = Length();
 		void* oldobj = mm::get().GetObject(oldindex, Size());
 		if (oldlength > newlength) {
-			for (int i = newlength; i < oldlength; ++i) {
-				mmDestroy((*this)[i]);
+			if (hasDestroy<T>::Has_Optional((*this)[newlength - 1])) {
+				for (int i = newlength; i < oldlength; ++i) {
+					mmDestroy((*this)[i]);
+				}
 			}
 		}
 		SetLength(newlength);
 		index = mm::get().Allocate((sizeof(T))*newlength + 2*sizeof(int)); // Unfortunate special-case behavior
-		void* newobj = mm::get().GetObject(index, Size());
+		void* newobj = index != -1 ? mm::get().FastGetObject(index, (sizeof(T))*newlength + 2 * sizeof(int)) : 0;
 		if (oldobj && newobj)
 			memcpy(newobj, oldobj, oldlength < Length() ? (sizeof(T)*oldlength + 2 * sizeof(int)) : (sizeof(T)*Length() + 2*sizeof(int)));
 		if (oldobj && *((int*)oldobj) == 1)
@@ -247,8 +282,10 @@ public:
 			*(((int*)newobj) + 2) = index;
 		}
 		if (oldlength < Length()) {
-			for (int i = oldlength; i < Length(); ++i) {
-				mmInitialize((*this)[i]);
+			if (Length() > 0 && hasInit<T>::Has_Optional((*this)[0])) {
+				for (int i = oldlength; i < Length(); ++i) {
+					mmInitialize((*this)[i]);
+				}
 			}
 		}
 		if (!oldobj) {
@@ -315,10 +352,12 @@ public:
 				destroyed = false;
 			}
 			else {
-				for (int i = 0; i < Length(); ++i) {
-					mmInitialize<T>((*this)[i]);
-					mmRecursiveInitialize((*this)[i]);
-					destroyed = false;
+				if (hasInit<T>::Has_Optional((*this)[0])) {
+					for (int i = 0; i < Length(); ++i) {
+						mmInitialize<T>((*this)[i]);
+						mmRecursiveInitialize((*this)[i]);
+						destroyed = false;
+					}
 				}
 			}
 		}
@@ -326,17 +365,17 @@ public:
 	T& operator* (){
 		if (IsArray())
 			FollowTrail();
-		return *((T*)(((int*)(mm::get().GetObject(index, Size()))) + (N != -1 ? 3 : 1)));
+		return *((T*)(((int*)(mm::get().FastGetObject(index, Size()))) + (N != -1 ? 3 : 1)));
 	}
 	T* operator& (){
 		if (IsArray())
 			FollowTrail();
-		return ((T*)(((int*)(mm::get().GetObject(index, Size()))) + (N != -1 ? 3 : 1)));
+		return ((T*)(((int*)(mm::get().FastGetObject(index, Size()))) + (N != -1 ? 3 : 1)));
 	}
 	T& Get(){
 		if (IsArray())
 			FollowTrail();
-		return *((T*)(((int*)(mm::get().GetObject(index, Size()))) + (N != -1 ? 3 : 1)));
+		return *((T*)(((int*)(mm::get().FastGetObject(index, Size()))) + (N != -1 ? 3 : 1)));
 	}
 	T& operator[] (int i){
 		// TODO:  Clean up condition
@@ -354,7 +393,7 @@ private:
 	int* sizes;
 	int* goodIndex;
 	int NumTables;
-	void GrowTable(int index){
+	void GrowTable(int& index){
 		int newsize = sizes[index] * 2;
 		if (newsize == 0) {
 			newsize = INITIAL_SIZE;
@@ -371,13 +410,13 @@ private:
 		
 		if (index >= 4) {
 			for (int i = oldsize; i < newsize; ++i) {
-				*((int*)(GetObject(i, index)) + (sizeof(void*) / sizeof(int))) = i + 1;
+				*((int*)(FastGetObject(i, index)) + (sizeof(void*) / sizeof(int))) = i + 1;
 			}
-			*((int*)(GetObject(newsize - 1, index)) + (sizeof(void*) / sizeof(int))) = -1;
+			*((int*)(FastGetObject(newsize - 1, index)) + (sizeof(void*) / sizeof(int))) = -1;
 			goodIndex[index] = oldsize;
 		}
 	}
-	void GrowTables(int NewTable){
+	void GrowTables(int& NewTable){
 		if (NewTable < NumTables) {
 			return;
 		}
@@ -442,11 +481,14 @@ private:
 			}
 			else {
 				int index = goodIndex[size];
-				goodIndex[size] = *(((int*)(GetObject(goodIndex[size], size))) + 1);
+				goodIndex[size] = *(((int*)(FastGetObject(goodIndex[size], size))) + 1);
 				memset(&tables[size][index*(sizeof(int) + size)], 0, sizeof(int) + size);
 				return index;
 			}
 		}
+	}
+	void* FastGetObject(int index, int size) {
+		return (void*)&tables[size][index*(size + sizeof(int))];
 	}
 	void* GetObject(int index, int size) {
 		if (index < 0)
