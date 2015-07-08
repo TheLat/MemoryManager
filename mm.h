@@ -505,4 +505,62 @@ public:
 		static mm instance;
 		return instance;
 	}
+	void Pack() {
+		for (int i = 1; i < NumTables; ++i) {
+			Pack(i);
+		}
+	}
+	void Pack(int index) {
+		if (index >= NumTables)
+			return;
+		if (!sizes[index])
+			return;
+		int out = -1;
+		for (int i = 0; i < sizes[index]; ++i) {
+			void* obj;
+			obj = GetObject(i, index);
+			if (obj) {
+				if (*((int*)obj)) {
+					out = i + 1;
+				}
+			}
+		}
+		if (out == -1) {
+			sizes[index] = 0;
+			delete[] tables[index];
+			goodIndex[index] = -1;
+		}
+		if (out < sizes[index]) {
+			char* newtable = new(char[(index + sizeof(int))*out]);
+			memset(newtable, 0, (index + sizeof(int))*out);
+			if (sizes[index] > 0){
+				memcpy(newtable, tables[index], (index + sizeof(int))*out);
+				delete[] tables[index];
+			}
+			tables[index] = newtable;
+			int oldsize = sizes[index];
+			sizes[index] = out;
+		}
+		
+		if (index >= 4) {
+			goodIndex[index] = -1;
+			for (int i = 0; i < out; ++i) {
+				void* obj;
+				obj = GetObject(i, index);
+				if (*((int*)obj) == 0) {
+					if (goodIndex[index] == -1)
+						goodIndex[index] = i;
+					*((int*)(GetObject(i, index)) + (sizeof(void*) / sizeof(int))) = -1;
+					for (int j = i + 1; j < out; ++j){
+						void* obj2;
+						obj2 = GetObject(j, index);
+						if (*((int*)obj2) == 0) {
+							*((int*)(GetObject(i, index)) + (sizeof(void*) / sizeof(int))) = j;
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
 };

@@ -109,7 +109,15 @@ The memory manager tracks whether or not an object has any pointers to it is by 
 When an object is allocated and there is no more space available in the table, the memory manager will allocate a new table twice the size of the old table, copy the old table to the new table, and free the old table.  If a table has not been allocated, it will allocate a new table of size INITIAL_SIZE, which is set to 5.
 
 #### Memory Shrinking
-The memory manager does not shrink tables.
+The memory manager has two methods of packing the memory tables.
+```
+void Pack(int index)
+```
+This is used to pack a specific table down to its smallest possible size.  Do not use sizeof() to get the size, as the memory manager uses some padding data.  Instead, use the appropriate Pointer's Size() function for this index.
+```
+void Pack()
+```
+Calling pack with no index will shrink all tables to their minimum size.
 
 #### Benchmarking
 Data to come.
