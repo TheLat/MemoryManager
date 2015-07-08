@@ -280,6 +280,8 @@ public:
 		if (IsArray())
 			FollowTrail();
 		Set(-1);
+		if (IsArray())
+			SetLength(0);
 	}
 	bool IsGood() const{
 		if (index >= 0 && Size() > 0)
@@ -529,6 +531,7 @@ public:
 			sizes[index] = 0;
 			delete[] tables[index];
 			goodIndex[index] = -1;
+			return;
 		}
 		if (out < sizes[index]) {
 			char* newtable = new(char[(index + sizeof(int))*out]);
