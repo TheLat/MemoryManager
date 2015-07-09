@@ -5,4 +5,5 @@ Release/
 *.sdf
 *.suo
 *.filters
-Memory Stats.txt
+*.txt
+*.vcxproj
