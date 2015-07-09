@@ -15,7 +15,7 @@ I am writing a memory manager to make life easier in C++.  The goal is to create
 * Handles Dynamic Arrays Of Length Zero:  Yes
 * Dynamic Array Resizing Updates Other Pointers To The Same Dynamic Array:  Yes
 * Ability To Pack Tables To Smallest Possible Length:  Yes
-* Ability To Start Tables At Previous Maximum Load:  **No**
+* Ability To Start Tables At Previous Memory Load:  Yes
 * Threadsafe: **No**
 
 ### Use:
@@ -119,5 +119,20 @@ void Pack()
 ```
 Calling pack with no index will shrink all tables to their minimum size.
 
+#### Memory Manager Functions
+```
+static mm& get()
+mm::get()
+```
+The memory manager is a singleton and access to it can only be granted by the second line.
+```
+void SaveTableSizes()
+```
+If you would like to save the current load of the memory manager, such as before calling an extremely memory-intensive function, or if you have hit the maximum load, you can save the current load of the memory manager.  Currently, you can only have one save.  It may or may not be beneficial to call Pack before calling this function.
+```
+void LoadTableSizes()
+```
+If you would like to load the saved memory loads, this function will grow all memory tables to the size they were when SaveTableSizes() was called.  This will not shrink tables if the current table size is larger than the saved table size.
+
 #### Benchmarking
-Data to come.
+Preliminary data indicates that this is between 1.2 and 2.0 times faster than normal C++ memory allocation.

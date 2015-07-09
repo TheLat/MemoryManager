@@ -393,8 +393,8 @@ private:
 	int* sizes;
 	int* goodIndex;
 	int NumTables;
-	void GrowTable(int& index){
-		int newsize = sizes[index] * 2;
+	void GrowTable(int& index, int max = 0){
+		int newsize = max <= 0 ? sizes[index] * 2 : max;
 		if (newsize == 0) {
 			newsize = INITIAL_SIZE;
 		}
@@ -553,6 +553,33 @@ public:
 		for (int i = 1; i < NumTables; ++i) {
 			Pack(i);
 		}
+	}
+	void SaveTableSizes() {
+		FILE * out;
+		fopen_s(&out, "MemoryTableSizes.txt", "wb");
+		if (!out)
+			return;
+		fwrite((void*)&NumTables, sizeof(int), 1, out);
+		for (int i = 0; i < NumTables; ++i) {
+			fwrite((void*)&sizes[i], sizeof(int), 1, out);
+		}
+		fclose(out);
+	}
+	void LoadTableSizes() {
+		FILE * out;
+		fopen_s(&out, "MemoryTableSizes.txt", "rb");
+		if (!out)
+			return;
+		int temp, max;
+		fread((void*)&max, sizeof(int), 1, out);
+		if (max > NumTables)
+			GrowTables(max);
+		for (int i = 0; i < max; ++i) {
+			fread((void*)&temp, sizeof(int), 1, out);
+			if (temp > sizes[i])
+				GrowTable(i, temp);
+		}
+		fclose(out);
 	}
 	void Pack(int index) {
 		if (index >= NumTables)
