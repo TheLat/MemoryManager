@@ -17,6 +17,7 @@ I am writing a memory manager to make life easier in C++.  The goal is to create
 * Ability To Pack Tables To Smallest Possible Length:  Yes
 * Ability To Start Tables At Previous Memory Load:  Yes
 * Threadsafe: **No**
+* Unit Tests: **No**
 
 ### Use:
 #### Declaration:
